@@ -1,0 +1,24 @@
+{
+  "name": "@modelcontextprotocol/servers",
+  "private": true,
+  "version": "0.5.1",
+  "description": "Model Context Protocol servers for Playwright",
+  "license": "MIT",
+  "author": "ExecuteAutomation, Ltd (https://executeautomation.com)",
+  "homepage": "https://github.com/executeautomation/mcp-playwright",
+  "bugs": "https://github.com/executeautomation/mcp-playwright/issues",
+  "type": "module",
+  "workspaces": [
+    "src/*"
+  ],
+  "files": [],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "watch": "npm run watch --workspaces",
+    "publish-all": "npm publish --workspaces --access public",
+    "link-all": "npm link --workspaces"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server-playwright": "*"
+  }
+}
