@@ -33,7 +33,7 @@ Here's the Claude Desktop configuration to use the Playwright server:
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-playwright"]
+      "args": ["-y", "@executeautomation/playwright-mcp-server"]
     }
   }
 }
