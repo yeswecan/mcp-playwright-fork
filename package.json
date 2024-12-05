@@ -6,6 +6,7 @@
   "author": "ExecuteAutomation, Ltd (https://executeautomation.com)",
   "homepage": "https://github.com/executeautomation/mcp-playwright",
   "bugs": "https://github.com/executeautomation/mcp-playwright/issues",
+  "types": "dist/index.d.ts",
   "type": "module",
   "bin": {
     "mcp-server-playwright": "dist/index.js"
