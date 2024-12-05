@@ -384,8 +384,8 @@ async function handleToolCall(name: string, args: any): Promise<{ toolResult: Ca
 
 const server = new Server(
   {
-    name: "example-servers/playwright",
-    version: "0.1.0",
+    name: "executeautomation/playwright-mcp-server",
+    version: "0.2.1",
   },
   {
     capabilities: {
