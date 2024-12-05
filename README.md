@@ -13,6 +13,13 @@ git clone https://github.com/executeautomation/mcp-playwright.git
 ```
 
 **Build the code**
+First run npm install
+
+```bash
+npm install
+```
+Then run build and link
+
 ```bash
 npm run build
 npm link
