@@ -9,7 +9,7 @@ async function runServer() {
   const server = new Server(
     {
       name: "executeautomation/playwright-mcp-server",
-      version: "0.2.1",
+      version: "0.2.2",
     },
     {
       capabilities: {
