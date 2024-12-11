@@ -5,7 +5,23 @@ A Model Context Protocol server that provides browser automation capabilities us
 ## Screenshot
 ![Playwright + Claude](image/playwright_claude.png)
 
-## Here is how you need to build the code in your local machine
+## Installation
+
+You can install the package using either npm or mcp-get:
+
+Using npm:
+```bash
+npm install -g @executeautomation/playwright-mcp-server
+```
+
+Using mcp-get:
+```bash
+npx @michaellatman/mcp-get@latest install @executeautomation/playwright-mcp-server
+```
+
+## Building from Source
+
+If you want to build the code from source:
 
 **Clone the repository**
 ```bash
