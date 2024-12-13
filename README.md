@@ -1,5 +1,7 @@
 # Playwright MCP Server
 
+[![smithery badge](https://smithery.ai/badge/@executeautomation/playwright-mcp-server)](https://smithery.ai/protocol/@executeautomation/playwright-mcp-server)
+
 A Model Context Protocol server that provides browser automation capabilities using Playwright. This server enables LLMs to interact with web pages, take screenshots, and execute JavaScript in a real browser environment.
 
 ## Screenshot
@@ -7,7 +9,15 @@ A Model Context Protocol server that provides browser automation capabilities us
 
 ## Installation
 
-You can install the package using either npm or mcp-get:
+You can install the package using either npm, mcp-get, or Smithery:
+
+### Installing via Smithery
+
+To install Playwright MCP for Claude Desktop automatically via [Smithery](https://smithery.ai/protocol/@executeautomation/playwright-mcp-server):
+
+```bash
+npx @smithery/cli install @executeautomation/playwright-mcp-server --client claude
+```
 
 Using npm:
 ```bash
@@ -104,7 +114,7 @@ The server provides access to two types of resources:
    - Browser console output in text format
    - Includes all console messages from the browser
 
-2. **Screenshots** (`screenshot://<name>`)
+2. **Screenshots** (`screenshot://<n>`)
    - PNG images of captured screenshots
    - Accessible via the screenshot name specified during capture
 
