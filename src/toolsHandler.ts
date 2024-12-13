@@ -1,6 +1,6 @@
-import { chromium, Browser, Page, request } from "playwright";
+import { chromium, Browser, Page, request, APIRequest, APIRequestContext } from "playwright";
 import { CallToolResult, TextContent, ImageContent } from "@modelcontextprotocol/sdk/types.js";
-import { BROWSER_TOOLS } from "./tools.js";
+import { BROWSER_TOOLS, API_TOOLS } from "./tools.js";
 import fs from 'node:fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -38,14 +38,16 @@ async function ensureApiContext(url: string) {
 }
 
 export async function handleToolCall(
-  name: string, 
-  args: any, 
+  name: string,
+  args: any,
   server: any
 ): Promise<{ toolResult: CallToolResult }> {
   // Check if the tool requires browser interaction
   const requiresBrowser = BROWSER_TOOLS.includes(name);
+  // Check if the tool requires api interaction
+  const requiresApi = API_TOOLS.includes(name);
   let page: Page | undefined;
-  let apiContext: any;
+  let apiContext: APIRequestContext;
 
   // Only launch browser if the tool requires browser interaction
   if (requiresBrowser) {
@@ -53,7 +55,7 @@ export async function handleToolCall(
   }
 
   // Set up API context for API-related operations
-  if (name === "playwright_get") {
+  if (requiresApi) {
     apiContext = await ensureApiContext(args.url);
   }
 
@@ -118,18 +120,18 @@ export async function handleToolCall(
         const base64Screenshot = screenshot.toString('base64');
 
         const responseContent: (TextContent | ImageContent)[] = [];
-        
+
         // Handle PNG file saving
         if (args.savePng !== false) {
           const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
           const filename = `${args.name}-${timestamp}.png`;
           const downloadsDir = args.downloadsDir || defaultDownloadsPath;
-          
+
           // Create downloads directory if it doesn't exist
           if (!fs.existsSync(downloadsDir)) {
             fs.mkdirSync(downloadsDir, { recursive: true });
           }
-          
+
           const filePath = path.join(downloadsDir, filename);
           await fs.promises.writeFile(filePath, screenshot);
           responseContent.push({
@@ -144,7 +146,7 @@ export async function handleToolCall(
           server.notification({
             method: "notifications/resources/list_changed",
           });
-          
+
           responseContent.push({
             type: "image",
             data: base64Screenshot,
@@ -317,13 +319,17 @@ export async function handleToolCall(
 
     case "playwright_get":
       try {
-        await apiContext.get(args.url);
-        
+        var response = await apiContext!.get(args.url);
+
         return {
           toolResult: {
             content: [{
               type: "text",
               text: `Performed GET Operation ${args.url}`,
+            },
+            {
+              type:"text",
+              text:`Response code ${response.status()}`
             }],
             isError: false,
           },
@@ -334,6 +340,130 @@ export async function handleToolCall(
             content: [{
               type: "text",
               text: `Failed to perform GET operation on ${args.url}: ${(error as Error).message}`,
+            }],
+            isError: true,
+          },
+        };
+      }
+
+    case "playwright_post":
+      try {
+        var response = await apiContext!.post(args.url, args.value);
+        return {
+          toolResult: {
+            content: [{
+              type: "text",
+              text: `Performed POST Operation ${args.url} with data ${JSON.stringify(args.value, null, 2)}`,
+            },
+            {
+              type: "text",
+              text: `Response: ${JSON.stringify(await response.json(), null, 2)}`,
+            },
+            {
+              type:"text",
+              text:`Response code ${response.status()}`
+            }],
+            isError: false,
+          },
+        };
+      } catch (error) {
+        return {
+          toolResult: {
+            content: [{
+              type: "text",
+              text: `Failed to perform POST operation on ${args.url}: ${(error as Error).message}`,
+            }],
+            isError: true,
+          },
+        };
+      }
+
+    case "playwright_put":
+      try {
+        var response = await apiContext!.put(args.url, args.value);
+
+        return {
+          toolResult: {
+            content: [{
+              type: "text",
+              text: `Performed PUT Operation ${args.url} with data ${JSON.stringify(args.value, null, 2)}`,
+            }, {
+              type: "text",
+              text: `Response: ${JSON.stringify(await response.json(), null, 2)}`,
+            },
+            {
+              type:"text",
+              text:`Response code ${response.status()}`
+            }],
+            isError: false,
+          },
+        };
+      } catch (error) {
+        return {
+          toolResult: {
+            content: [{
+              type: "text",
+              text: `Failed to perform PUT operation on ${args.url}: ${(error as Error).message}`,
+            }],
+            isError: true,
+          },
+        };
+      }
+
+    case "playwright_delete":
+      try {
+        var response = await apiContext!.delete(args.url);
+
+        return {
+          toolResult: {
+            content: [{
+              type: "text",
+              text: `Performed delete Operation ${args.url}`,
+            },
+            {
+              type:"text",
+              text:`Response code ${response.status()}`
+            }],
+            isError: false,
+          },
+        };
+      } catch (error) {
+        return {
+          toolResult: {
+            content: [{
+              type: "text",
+              text: `Failed to perform delete operation on ${args.url}: ${(error as Error).message}`,
+            }],
+            isError: true,
+          },
+        };
+      }
+
+    case "playwright_patch":
+      try {
+        var response = await apiContext!.patch(args.url, args.value);
+
+        return {
+          toolResult: {
+            content: [{
+              type: "text",
+              text: `Performed PATCH Operation ${args.url} with data ${JSON.stringify(args.value, null, 2)}`,
+            }, {
+              type: "text",
+              text: `Response: ${JSON.stringify(await response.json(), null, 2)}`,
+            },{
+              type:"text",
+              text:`Response code ${response.status()}`
+            }],
+            isError: false,
+          },
+        };
+      } catch (error) {
+        return {
+          toolResult: {
+            content: [{
+              type: "text",
+              text: `Failed to perform PATCH operation on ${args.url}: ${(error as Error).message}`,
             }],
             isError: true,
           },
