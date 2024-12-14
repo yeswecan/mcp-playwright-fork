@@ -328,9 +328,14 @@ export async function handleToolCall(
               text: `Performed GET Operation ${args.url}`,
             },
             {
-              type:"text",
-              text:`Response code ${response.status()}`
-            }],
+              type: "text",
+              text: `Response: ${JSON.stringify(await response.json(), null, 2)}`,
+            },
+            {
+              type: "text",
+              text: `Response code ${response.status()}`
+            }
+            ],
             isError: false,
           },
         };
@@ -348,7 +353,14 @@ export async function handleToolCall(
 
     case "playwright_post":
       try {
-        var response = await apiContext!.post(args.url, args.value);
+        var data = {
+          data: args.value,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        };
+
+        var response = await apiContext!.post(args.url, data);
         return {
           toolResult: {
             content: [{
@@ -360,8 +372,8 @@ export async function handleToolCall(
               text: `Response: ${JSON.stringify(await response.json(), null, 2)}`,
             },
             {
-              type:"text",
-              text:`Response code ${response.status()}`
+              type: "text",
+              text: `Response code ${response.status()}`
             }],
             isError: false,
           },
@@ -380,7 +392,13 @@ export async function handleToolCall(
 
     case "playwright_put":
       try {
-        var response = await apiContext!.put(args.url, args.value);
+        var data = {
+          data: args.value,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        };
+        var response = await apiContext!.put(args.url, data);
 
         return {
           toolResult: {
@@ -392,8 +410,8 @@ export async function handleToolCall(
               text: `Response: ${JSON.stringify(await response.json(), null, 2)}`,
             },
             {
-              type:"text",
-              text:`Response code ${response.status()}`
+              type: "text",
+              text: `Response code ${response.status()}`
             }],
             isError: false,
           },
@@ -421,8 +439,8 @@ export async function handleToolCall(
               text: `Performed delete Operation ${args.url}`,
             },
             {
-              type:"text",
-              text:`Response code ${response.status()}`
+              type: "text",
+              text: `Response code ${response.status()}`
             }],
             isError: false,
           },
@@ -441,7 +459,13 @@ export async function handleToolCall(
 
     case "playwright_patch":
       try {
-        var response = await apiContext!.patch(args.url, args.value);
+        var data = {
+          data: args.value,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        };
+        var response = await apiContext!.patch(args.url, data);
 
         return {
           toolResult: {
@@ -451,9 +475,9 @@ export async function handleToolCall(
             }, {
               type: "text",
               text: `Response: ${JSON.stringify(await response.json(), null, 2)}`,
-            },{
-              type:"text",
-              text:`Response code ${response.status()}`
+            }, {
+              type: "text",
+              text: `Response code ${response.status()}`
             }],
             isError: false,
           },
