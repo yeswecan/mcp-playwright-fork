@@ -68,7 +68,7 @@ Here's the Claude Desktop configuration to use the Playwright server:
 
 ## Components
 
-### Tools
+### Playwright Browser Tools
 
 - **playwright_navigate**
   - Navigate to any URL in the browser
@@ -105,6 +105,49 @@ Here's the Claude Desktop configuration to use the Playwright server:
 - **playwright_evaluate**
   - Execute JavaScript in the browser console
   - Input: `script` (string): JavaScript code to execute
+
+### Playwright API Tools
+
+- **playwright_get**
+  - GET operation on any given API request
+  - Inputs:
+    - `url` (string): URL to perform GET operation
+  - Response:
+    - `statusCode` (string): Status code of the API
+
+- **playwright_post**
+  - POST operation on any given API request
+  - Inputs:
+    - `url` (string): URL to perform PUT operation
+    - `value` (string): Data to post in the body
+  - Response:
+    - `statusCode` (string): Status code of the API
+    - `responseData` (string): JSON format response data
+
+- **playwright_put**
+  - PUT operation on any given API request
+  - Inputs:
+    - `url` (string): URL to perform PUT operation
+    - `value` (string): Data to put in the body
+  - Response:
+    - `statusCode` (string): Status code of the API
+    - `responseData` (string): JSON format response data
+
+- **playwright_patch**
+  - PATCH operation on any given API request
+  - Inputs:
+    - `url` (string): URL to perform PATCH operation
+    - `value` (string): Data to patch in the body
+  - Response:
+    - `statusCode` (string): Status code of the API
+    - `responseData` (string): JSON format response data
+    
+- **playwright_delete**
+  - DELETE operation on any given API request
+  - Inputs:
+    - `url` (string): URL to perform DELETE operation
+  - Response:
+    - `statusCode` (string): Status code of the API
 
 ### Resources
 

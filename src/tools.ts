@@ -98,16 +98,73 @@ export function createToolDefinitions(): Tool[] {
         required: ["url"],
       },
     },
+    {
+      name: "playwright_post",
+      description: "Perform an HTTP POST request",
+      inputSchema: {
+        type: "object",
+        properties: {
+          url: { type: "string", description: "URL to perform POST operation" },
+          value: { type: "string", description: "Data to post in the body" },
+        },
+        required: ["url", "value"],
+      },
+    },
+    {
+      name: "playwright_put",
+      description: "Perform an HTTP PUT request",
+      inputSchema: {
+        type: "object",
+        properties: {
+          url: { type: "string", description: "URL to perform PUT operation" },
+          value: { type: "string", description: "Data to PUT in the body" },
+        },
+        required: ["url", "value"],
+      },
+    },
+    {
+      name: "playwright_patch",
+      description: "Perform an HTTP PATCH request",
+      inputSchema: {
+        type: "object",
+        properties: {
+          url: { type: "string", description: "URL to perform PUT operation" },
+          value: { type: "string", description: "Data to PATCH in the body" },
+        },
+        required: ["url", "value"],
+      },
+    },
+    {
+      name: "playwright_delete",
+      description: "Perform an HTTP DELETE request",
+      inputSchema: {
+        type: "object",
+        properties: {
+          url: { type: "string", description: "URL to perform DELETE operation" }
+        },
+        required: ["url"],
+      },
+    },
   ];
 }
 
 // Browser-requiring tools for conditional browser launch
 export const BROWSER_TOOLS = [
-  "playwright_navigate", 
-  "playwright_screenshot", 
-  "playwright_click", 
-  "playwright_fill", 
-  "playwright_select", 
-  "playwright_hover", 
+  "playwright_navigate",
+  "playwright_screenshot",
+  "playwright_click",
+  "playwright_fill",
+  "playwright_select",
+  "playwright_hover",
   "playwright_evaluate"
+];
+
+
+// API Request tools for conditional launch
+export const API_TOOLS = [
+  "playwright_get",
+  "playwright_post",
+  "playwright_put",
+  "playwright_delete",
+  "playwright_patch"
 ];
