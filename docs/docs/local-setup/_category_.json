@@ -1,0 +1,8 @@
+{
+	"label": "Local Development",
+	"position": 2,
+	"link": {
+		"type": "generated-index",
+		"description": "Understand how to setup Playwright MCP Server to run in your local machine."
+	}
+}
