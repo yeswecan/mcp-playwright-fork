@@ -30,6 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
+        working-directory: docs
         run: npm install
       - name: Build site
         working-directory: docs
