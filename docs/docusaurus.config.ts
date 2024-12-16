@@ -13,12 +13,12 @@ const config: Config = {
   url: 'https://executeautomation.github.io/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/mcp-playwright/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'executeautomation', // Usually your GitHub org/user name.
-  projectName: 'Playwright-MCP-Server', // Usually your repo name.
+  projectName: 'mcp-playwright', // Usually your repo name.
 
   onBrokenLinks: 'ignore',
   onBrokenMarkdownLinks: 'warn',
@@ -66,7 +66,6 @@ const config: Config = {
           position: 'left',
           label: 'Tutorial',
         },
-        {to: '/blog', position: 'left'},
         {
           href: 'https://github.com/executeautomation/mcp-playwright',
           label: 'GitHub',
