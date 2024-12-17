@@ -2,6 +2,9 @@
 sidebar_position: 1
 ---
 
+import YouTubeEmbed from '@site/src/components/HomepageFeatures/YouTubeEmbed';
+
+
 # Supported Tools
 
 Playwright MCP for Browser automation has following key features
@@ -9,6 +12,16 @@ Playwright MCP for Browser automation has following key features
 - Screenshot capabilities
 - JavaScript execution
 - Basic web interaction (navigation, clicking, form filling, drop down select and hover)
+
+
+<YouTubeEmbed videoId="8CcgFUE16HM" />
+
+---
+
+:::warning Note
+Playwright UI automation is supported for very limited feature sets, more features will be added in upcoming days. Please feel free to fork the repo and add the feature and raise PR, will can build the library together!
+:::
+
 
 ### Playwright_navigate
 Navigate to any URL in the browser
