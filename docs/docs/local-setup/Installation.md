@@ -41,4 +41,4 @@ Modify your `claude-desktop-config.json` file as shown below to work with local 
 ## Reward
 If your setup is all correct, you should see Playwright MCP Server pointing your local machine source code
 
-![Playwright MCP Server](./img/configured_mcp.png)
+![Playwright MCP Server](./img/mcp-server.png)

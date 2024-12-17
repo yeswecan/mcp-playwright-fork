@@ -4,28 +4,25 @@ sidebar_position: 1
 
 # Playwright MCP Server
 
-A ***Playwright Model Context Protocol server*** that provides Browser and API automation capabilities using Playwright. 
+The **Playwright Model Context Protocol (MCP) server** is a powerful solution for automating Browser and API testing using Playwright.
 
-***Playwright MCP server*** enables LLMs to interact with web pages, take screenshots, and execute JavaScript in a real browser environment and perform API tests.
+With the Playwright MCP server, you can:
+	- Enable LLMs to interact with web pages in a real browser environment.
+	- Perform tasks such as executing JavaScript, taking screenshots, and navigating web elements.
+	- Seamlessly handle API testing to validate endpoints and ensure reliability.
 
-## Configuring Playwright MCP in Claude Desktop 
-Here's the Claude Desktop configuration to use the Playwright MCP server.
-
-Modify your `claude-desktop-config.json` file as shown below
-
-```json
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@executeautomation/playwright-mcp-server"]
-    }
-  }
-}
-```
+![Playwright MCP Server](./img/mcp-server.png)
 
 
+## Installation
 You can install Playwright MCP Server package using either **npm**, **mcp-get**, or **Smithery**:
+
+:::info Playwright MCP Tips
+
+To get started more quickly on Playwright MCP Server, watch the videos mentioned in the footer of this page under `Docs`
+
+:::
+
 
 ### Installing via NPM
 To install Playwright MCP for Claude Desktop automatically via Smithery:
@@ -48,4 +45,20 @@ To install Playwright MCP for Claude Desktop automatically via Smithery:
 
 ```bash
 npx @michaellatman/mcp-get@latest install @executeautomation/playwright-mcp-server
+```
+
+### Configuring Playwright MCP in Claude Desktop 
+Here's the Claude Desktop configuration to use the Playwright MCP server.
+
+Modify your `claude-desktop-config.json` file as shown below
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server"]
+    }
+  }
+}
 ```
