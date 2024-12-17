@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function YouTubeEmbed({ videoId }) {
+export default function YouTubeVideoEmbed({ videoId }) {
   return (
     <iframe
       width="700"
