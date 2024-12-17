@@ -4,7 +4,7 @@
   "description": "Model Context Protocol servers for Playwright",
   "license": "MIT",
   "author": "ExecuteAutomation, Ltd (https://executeautomation.com)",
-  "homepage": "https://github.com/executeautomation/mcp-playwright",
+  "homepage": "https://executeautomation.github.io/mcp-playwright/",
   "bugs": "https://github.com/executeautomation/mcp-playwright/issues",
   "types": "dist/index.d.ts",
   "type": "module",
