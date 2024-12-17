@@ -1,12 +1,15 @@
 ---
 sidebar_position: 2
 ---
+import YouTubeEmbed from '@site/src/components/HomepageFeatures/YouTubeEmbed';
 
 # Release Notes
 
 
 ## Version 0.2.6
 - New Documentation site powered by docusaurus hosted in GH-Pages https://executeautomation.github.io/mcp-playwright/ 
+
+---
 
 ## Version 0.2.5
 
@@ -18,10 +21,17 @@ sidebar_position: 2
   - `PATCH` request
   - `DELETE` request
 
+  <YouTubeEmbed videoId="BYYyoRxCcFE" />
+
+---
+
 ## Version 0.2.4
 - Added support for smithery 
 - Added Support to save Playwright screenshot in local directory, thanks to `@s4l4x`
 
+---
+
 ## Version 0.2.3
 - Added quality of life improvement
 
+---
