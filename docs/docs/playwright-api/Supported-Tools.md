@@ -3,6 +3,17 @@ sidebar_position: 1
 ---
 # Supported Tools
 
+Playwright MCP for API automation has following key features
+- Support of GET Request
+- Support of POST Request
+- Support of PATCH Request
+- Support of PUT Request
+- Support of DELETE Request
+
+:::warning Note
+Still the library is not matured enough to support Oauth, Multi-form, Binary input or complex API requests. Please feel free to fork the repo and add the feature with a PR, will can build the library together!
+:::
+
 ### Playwright_get
 Perform a GET operation on any given API request.
 

@@ -4,6 +4,12 @@ sidebar_position: 1
 
 # Supported Tools
 
+Playwright MCP for Browser automation has following key features
+- Console log monitoring
+- Screenshot capabilities
+- JavaScript execution
+- Basic web interaction (navigation, clicking, form filling, drop down select and hover)
+
 ### Playwright_navigate
 Navigate to any URL in the browser
 - **`Input`** url (string):
