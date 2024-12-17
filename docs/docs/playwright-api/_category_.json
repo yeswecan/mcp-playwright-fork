@@ -1,6 +1,7 @@
 {
   "label": "Playwright API Features",
-  "position": 4,
+  "position": 5,
+  "collapsed": false,
   "link": {
     "type": "generated-index",
     "description": "Supported features in Playwright API Testing."
