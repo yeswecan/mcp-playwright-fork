@@ -9,7 +9,7 @@ A Model Context Protocol server that provides browser automation capabilities us
 ## Screenshot
 ![Playwright + Claude](image/playwright_claude.png)
 
-## [Documentation](https://executeautomation.github.io/mcp-playwright/) | [API reference](http://localhost:3000/mcp-playwright/docs/playwright-web/Supported-Tools)
+## [Documentation](https://executeautomation.github.io/mcp-playwright/) | [API reference](https://executeautomation.github.io/mcp-playwright/docs/playwright-web/Supported-Tools)
 
 ## Installation
 
