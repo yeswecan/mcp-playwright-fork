@@ -12,11 +12,20 @@ const consoleLogs: string[] = [];
 const screenshots = new Map<string, string>();
 const defaultDownloadsPath = path.join(os.homedir(), 'Downloads');
 
-async function ensureBrowser() {
+// Viewport type definition
+type ViewportSize = {
+  width?: number;
+  height?: number;
+};
+
+async function ensureBrowser(viewport?: ViewportSize) {
   if (!browser) {
     browser = await chromium.launch({ headless: false });
     const context = await browser.newContext({
-      viewport: { width: 1920, height: 1080 },
+      viewport: {
+        width: viewport?.width ?? 1920,
+        height: viewport?.height ?? 1080,
+      },
       deviceScaleFactor: 1,
     });
 
@@ -51,7 +60,10 @@ export async function handleToolCall(
 
   // Only launch browser if the tool requires browser interaction
   if (requiresBrowser) {
-    page = await ensureBrowser();
+    page = await ensureBrowser({
+      width: args.width,
+      height: args.height
+    });
   }
 
   // Set up API context for API-related operations
@@ -70,7 +82,8 @@ export async function handleToolCall(
           toolResult: {
             content: [{
               type: "text",
-              text: `Navigated to ${args.url} with ${args.waitUntil || "load"} wait`,
+              text: `Navigated to ${args.url} with ${args.waitUntil || "load"} wait` +
+                    (args.width && args.height ? ` (viewport: ${args.width}x${args.height})` : ""),
             }],
             isError: false,
           },
