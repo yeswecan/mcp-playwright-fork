@@ -9,6 +9,10 @@ export function createToolDefinitions(): Tool[] {
         type: "object",
         properties: {
           url: { type: "string" },
+          width: { type: "number", description: "Viewport width in pixels (default: 1920)" },
+          height: { type: "number", description: "Viewport height in pixels (default: 1080)" },
+          timeout: { type: "number", description: "Navigation timeout in milliseconds" },
+          waitUntil: { type: "string", description: "Navigation wait condition" }
         },
         required: ["url"],
       },
@@ -158,7 +162,6 @@ export const BROWSER_TOOLS = [
   "playwright_hover",
   "playwright_evaluate"
 ];
-
 
 // API Request tools for conditional launch
 export const API_TOOLS = [
