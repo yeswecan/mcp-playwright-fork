@@ -1,6 +1,6 @@
 # Playwright MCP Server
 
-[![smithery badge](https://smithery.ai/badge/@executeautomation/playwright-mcp-server)](https://smithery.ai/protocol/@executeautomation/playwright-mcp-server)
+[![smithery badge](https://smithery.ai/badge/@executeautomation/playwright-mcp-server)](https://smithery.ai/server/@executeautomation/playwright-mcp-server)
 
 A Model Context Protocol server that provides browser automation capabilities using Playwright. This server enables LLMs to interact with web pages, take screenshots, and execute JavaScript in a real browser environment.
 
@@ -26,10 +26,10 @@ npx @michaellatman/mcp-get@latest install @executeautomation/playwright-mcp-serv
 ```
 Using Smithery
 
-To install Playwright MCP for Claude Desktop automatically via [Smithery](https://smithery.ai/protocol/@executeautomation/playwright-mcp-server):
+To install Playwright MCP for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@executeautomation/playwright-mcp-server):
 
 ```bash
-npx @smithery/cli install @executeautomation/playwright-mcp-server --client claude
+npx -y @smithery/cli install @executeautomation/playwright-mcp-server --client claude
 ```
 ## Configuration to use Playwright Server
 Here's the Claude Desktop configuration to use the Playwright server:
