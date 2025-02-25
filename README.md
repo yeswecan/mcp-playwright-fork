@@ -1,4 +1,4 @@
-# Playwright MCP Server
+# Playwright MCP Server 🎭
 
 [![smithery badge](https://smithery.ai/badge/@executeautomation/playwright-mcp-server)](https://smithery.ai/server/@executeautomation/playwright-mcp-server)
 
