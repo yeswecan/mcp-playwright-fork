@@ -9,8 +9,8 @@ export function createToolDefinitions(): Tool[] {
         type: "object",
         properties: {
           url: { type: "string" },
-          width: { type: "number", description: "Viewport width in pixels (default: 1920)" },
-          height: { type: "number", description: "Viewport height in pixels (default: 1080)" },
+          width: { type: "number", description: "Viewport width in pixels (default: 1280)" },
+          height: { type: "number", description: "Viewport height in pixels (default: 720)" },
           timeout: { type: "number", description: "Navigation timeout in milliseconds" },
           waitUntil: { type: "string", description: "Navigation wait condition" }
         },
