@@ -23,8 +23,8 @@ async function ensureBrowser(viewport?: ViewportSize) {
     browser = await chromium.launch({ headless: false });
     const context = await browser.newContext({
       viewport: {
-        width: viewport?.width ?? 1920,
-        height: viewport?.height ?? 1080,
+        width: viewport?.width ?? 1280,
+        height: viewport?.height ?? 720,
       },
       deviceScaleFactor: 1,
     });
@@ -127,7 +127,7 @@ export async function handleToolCall(
         const responseContent: (TextContent | ImageContent)[] = [];
 
         // Handle PNG file saving
-        if (args.savePng !== false) {
+        if (args.savePng === true) {
           const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
           const filename = `${args.name}-${timestamp}.png`;
           const downloadsDir = args.downloadsDir || defaultDownloadsPath;
