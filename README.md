@@ -50,18 +50,6 @@ Here's the Claude Desktop configuration to use the Playwright server:
 [![Star History Chart](https://api.star-history.com/svg?repos=executeautomation/mcp-playwright&type=Date)](https://star-history.com/#executeautomation/mcp-playwright&Date)
 
 
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=executeautomation/mcp-playwright&type=Date)](https://star-history.com/#executeautomation/mcp-playwright&Date)
-
-
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=executeautomation/mcp-playwright&type=Date)]
-
-
 ## Star History
 
 [![Star History Chart]](https://star-history.com/#executeautomation/mcp-playwright&Date)
