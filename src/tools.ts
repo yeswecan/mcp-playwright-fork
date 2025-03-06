@@ -28,6 +28,7 @@ export function createToolDefinitions() {
           width: { type: "number", description: "Width in pixels (default: 800)" },
           height: { type: "number", description: "Height in pixels (default: 600)" },
           storeBase64: { type: "boolean", description: "Store screenshot in base64 format (default: true)" },
+          fullPage: { type: "boolean", description: "Store screenshot of the entire page (default: false)" },
           savePng: { type: "boolean", description: "Save screenshot as PNG file (default: false)" },
           downloadsDir: { type: "string", description: "Custom downloads directory path (default: user's Downloads folder)" },
         },
