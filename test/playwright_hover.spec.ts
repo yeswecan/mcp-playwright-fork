@@ -1,25 +1,7 @@
-import {
-  mockPage,
-  mockChromium,
-  mockRequest,
-  mockFs,
-  mockPath,
-  resetAllMocks,
-} from "./helpers";
+import { mockPage, resetAllMocks, setupPlaywrightMocks } from "./helpers";
 
-// Mock the playwright module
-jest.mock("playwright", () => {
-  return {
-    chromium: mockChromium,
-    request: mockRequest,
-  };
-});
-
-// Mock the fs module
-jest.mock("node:fs", () => mockFs);
-
-// Mock the path module
-jest.mock("node:path", () => mockPath);
+// Set up all mocks
+setupPlaywrightMocks();
 
 // Import the toolsHandler after mocking dependencies
 import { handleToolCall } from "../src/toolsHandler";
@@ -51,5 +33,27 @@ describe("playwright_hover unit tests", () => {
     // Verify the result
     expect(result.isError).toBe(false);
     expect(result.content[0].text).toBe(`Hovered #hover-element`);
+  });
+
+  it("should handle errors when hovering", async () => {
+    // First navigate to a page to ensure browser is initialized
+    await handleToolCall(
+      "playwright_navigate",
+      { url: "https://example.com" },
+      {}
+    );
+
+    const name = "playwright_hover";
+    const args = { selector: "#hover-element" };
+    const server = {};
+
+    // Mock the hover method to throw an error
+    mockPage.hover.mockRejectedValueOnce(new Error("Hover failed"));
+
+    const result = await handleToolCall(name, args, server);
+
+    // Verify the result
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain("Hover failed");
   });
 });

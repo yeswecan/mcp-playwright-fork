@@ -1,25 +1,7 @@
-import {
-  mockPage,
-  mockChromium,
-  mockRequest,
-  mockFs,
-  mockPath,
-  resetAllMocks,
-} from "./helpers";
+import { mockPage, resetAllMocks, setupPlaywrightMocks } from "./helpers";
 
-// Mock the playwright module
-jest.mock("playwright", () => {
-  return {
-    chromium: mockChromium,
-    request: mockRequest,
-  };
-});
-
-// Mock the fs module
-jest.mock("node:fs", () => mockFs);
-
-// Mock the path module
-jest.mock("node:path", () => mockPath);
+// Set up all mocks
+setupPlaywrightMocks();
 
 // Import the toolsHandler after mocking dependencies
 import { handleToolCall } from "../src/toolsHandler";
@@ -51,5 +33,27 @@ describe("playwright_fill unit tests", () => {
     // Verify the result
     expect(result.isError).toBe(false);
     expect(result.content[0].text).toBe(`Filled input with: test`);
+  });
+
+  it("should handle errors when filling", async () => {
+    // First navigate to a page to ensure browser is initialized
+    await handleToolCall(
+      "playwright_navigate",
+      { url: "https://example.com" },
+      {}
+    );
+
+    const name = "playwright_fill";
+    const args = { selector: "input", value: "test" };
+    const server = {};
+
+    // Mock the fill method to throw an error
+    mockPage.fill.mockRejectedValueOnce(new Error("Fill failed"));
+
+    const result = await handleToolCall(name, args, server);
+
+    // Verify the result
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain("Fill failed");
   });
 });

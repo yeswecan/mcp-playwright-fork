@@ -1,25 +1,7 @@
-import {
-  mockPage,
-  mockChromium,
-  mockRequest,
-  mockFs,
-  mockPath,
-  resetAllMocks,
-} from "./helpers";
+import { mockPage, resetAllMocks, setupPlaywrightMocks } from "./helpers";
 
-// Mock the playwright module
-jest.mock("playwright", () => {
-  return {
-    chromium: mockChromium,
-    request: mockRequest,
-  };
-});
-
-// Mock the fs module
-jest.mock("node:fs", () => mockFs);
-
-// Mock the path module
-jest.mock("node:path", () => mockPath);
+// Set up all mocks
+setupPlaywrightMocks();
 
 // Import the toolsHandler after mocking dependencies
 import { handleToolCall } from "../src/toolsHandler";
@@ -62,5 +44,32 @@ describe("playwright_iframe_click unit tests", () => {
     expect(result.content[0].text).toBe(
       `Clicked: #my-button (iframe: #my-iframe)`
     );
+  });
+
+  it("should handle errors when clicking in iframe", async () => {
+    // First navigate to a page to ensure browser is initialized
+    await handleToolCall(
+      "playwright_navigate",
+      { url: "https://example.com" },
+      {}
+    );
+
+    // Mock the iframe locator
+    const mockIframeLocator = {
+      locator: jest.fn().mockReturnValue({
+        click: jest.fn().mockRejectedValue(new Error("Click failed")),
+      }),
+    };
+    mockPage.frameLocator = jest.fn().mockReturnValue(mockIframeLocator);
+
+    const name = "playwright_iframe_click";
+    const args = { iframeSelector: "#my-iframe", selector: "#my-button" };
+    const server = {};
+
+    const result = await handleToolCall(name, args, server);
+
+    // Verify the result
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain("Click failed");
   });
 });

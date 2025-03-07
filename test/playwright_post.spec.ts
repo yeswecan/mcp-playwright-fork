@@ -1,25 +1,7 @@
-import {
-  mockChromium,
-  mockApiContext,
-  mockRequest,
-  mockFs,
-  mockPath,
-  resetAllMocks,
-} from "./helpers";
+import { mockApiContext, resetAllMocks, setupPlaywrightMocks } from "./helpers";
 
-// Mock the playwright module
-jest.mock("playwright", () => {
-  return {
-    chromium: mockChromium,
-    request: mockRequest,
-  };
-});
-
-// Mock the fs module
-jest.mock("node:fs", () => mockFs);
-
-// Mock the path module
-jest.mock("node:path", () => mockPath);
+// Set up all mocks
+setupPlaywrightMocks();
 
 // Import the toolsHandler after mocking dependencies
 import { handleToolCall } from "../src/toolsHandler";
@@ -58,5 +40,29 @@ describe("playwright_post unit tests", () => {
       `Performed POST Operation https://example.com/api`
     );
     expect(result.content[2].text).toBe("Response code 201");
+  });
+
+  it("should handle errors when posting", async () => {
+    const name = "playwright_post";
+    const args = { url: "https://example.com/api", value: { test: "data" } };
+    const server = {};
+
+    // Mock the API response to return an error
+    mockApiContext.post.mockRejectedValueOnce(new Error("Post failed"));
+
+    const result = await handleToolCall(name, args, server);
+
+    // Verify the post was called with the correct URL and data
+    expect(mockApiContext.post).toHaveBeenCalledWith(
+      "https://example.com/api",
+      expect.objectContaining({
+        data: { test: "data" },
+        headers: expect.any(Object),
+      })
+    );
+
+    // Verify the result is an error
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain("Post failed");
   });
 });

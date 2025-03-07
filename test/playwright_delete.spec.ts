@@ -1,25 +1,7 @@
-import {
-  mockChromium,
-  mockApiContext,
-  mockRequest,
-  mockFs,
-  mockPath,
-  resetAllMocks,
-} from "./helpers";
+import { mockApiContext, resetAllMocks, setupPlaywrightMocks } from "./helpers";
 
-// Mock the playwright module
-jest.mock("playwright", () => {
-  return {
-    chromium: mockChromium,
-    request: mockRequest,
-  };
-});
-
-// Mock the fs module
-jest.mock("node:fs", () => mockFs);
-
-// Mock the path module
-jest.mock("node:path", () => mockPath);
+// Set up all mocks
+setupPlaywrightMocks();
 
 // Import the toolsHandler after mocking dependencies
 import { handleToolCall } from "../src/toolsHandler";
@@ -53,5 +35,25 @@ describe("playwright_delete unit tests", () => {
       `Performed delete Operation https://example.com/api`
     );
     expect(result.content[1].text).toBe("Response code 204");
+  });
+
+  it("should handle errors when deleting", async () => {
+    const name = "playwright_delete";
+    const args = { url: "https://example.com/api" };
+    const server = {};
+
+    // Mock the API response to return an error
+    mockApiContext.delete.mockRejectedValueOnce(new Error("Delete failed"));
+
+    const result = await handleToolCall(name, args, server);
+
+    // Verify the delete was called with the correct URL
+    expect(mockApiContext.delete).toHaveBeenCalledWith(
+      "https://example.com/api"
+    );
+
+    // Verify the result is an error
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain("Delete failed");
   });
 });

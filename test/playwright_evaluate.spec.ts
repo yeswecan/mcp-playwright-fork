@@ -1,25 +1,7 @@
-import {
-  mockPage,
-  mockChromium,
-  mockRequest,
-  mockFs,
-  mockPath,
-  resetAllMocks,
-} from "./helpers";
+import { mockPage, resetAllMocks, setupPlaywrightMocks } from "./helpers";
 
-// Mock the playwright module
-jest.mock("playwright", () => {
-  return {
-    chromium: mockChromium,
-    request: mockRequest,
-  };
-});
-
-// Mock the fs module
-jest.mock("node:fs", () => mockFs);
-
-// Mock the path module
-jest.mock("node:path", () => mockPath);
+// Set up all mocks
+setupPlaywrightMocks();
 
 // Import the toolsHandler after mocking dependencies
 import { handleToolCall } from "../src/toolsHandler";
@@ -53,5 +35,20 @@ describe("playwright_evaluate unit tests", () => {
     expect(result.isError).toBe(false);
     expect(result.content[0].text).toContain("Execution result");
     expect(result.content[0].text).toContain("Example Domain");
+  });
+
+  it("should handle errors when evaluating", async () => {
+    const name = "playwright_evaluate";
+    const args = { script: "return document.title" };
+    const server = {};
+
+    // Mock the evaluate method to throw an error
+    mockPage.evaluate.mockRejectedValueOnce(new Error("Evaluation failed"));
+
+    const result = await handleToolCall(name, args, server);
+
+    // Verify the result
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain("Evaluation failed");
   });
 });
