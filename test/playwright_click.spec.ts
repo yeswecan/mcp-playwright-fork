@@ -68,4 +68,36 @@ describe("playwright_click integration tests", () => {
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain("Failed to click");
   });
+
+  it("should handle playwright_click after playwright_screenshot with selector", async () => {
+    // Set up the test HTML content
+    mockPage.setContent.mockResolvedValueOnce(undefined);
+
+    // First navigate to a page to ensure browser is initialized
+    await handleToolCall(
+      "playwright_navigate",
+      { url: "https://example.com" },
+      {}
+    );
+
+    // Take a screenshot with a selector
+    await handleToolCall(
+      "playwright_screenshot",
+      { selector: "#screenshot-element", name: "test-screenshot" },
+      {}
+    );
+
+    const name = "playwright_click";
+    const args = { selector: "#test-button" };
+    const server = {};
+
+    const result = await handleToolCall(name, args, server);
+
+    // Verify the click was called with the correct selector
+    expect(mockPage.click).toHaveBeenCalledWith("#test-button");
+
+    // Verify the result
+    expect(result.isError).toBe(false);
+    expect(result.content[0].text).toBe(`Clicked: #test-button`);
+  });
 });

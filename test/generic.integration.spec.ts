@@ -20,11 +20,6 @@ describe("generic integration tests", () => {
     resetAllMocks();
   });
 
-  it("should test generic functionality", async () => {
-    // Basic test to ensure the test suite is working
-    expect(true).toBe(true);
-  });
-
   it("should navigate to a URL", async () => {
     // Set up the mock
     mockPage.goto.mockResolvedValueOnce(undefined);
