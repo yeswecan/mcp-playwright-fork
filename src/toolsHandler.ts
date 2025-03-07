@@ -94,85 +94,88 @@ export async function handleToolCall(
         };
       }
 
-    case "playwright_screenshot": {
-      try {
-        const screenshotOptions: any = {
-          type: args.type || "png",
-          fullPage: !!args.fullPage
-        };
-
-        if (args.selector) {
-          const element = await page!.$(args.selector);
-          if (!element) {
-            return {
-              content: [{
-                type: "text",
-                text: `Element not found: ${args.selector}`,
-              }],
-              isError: true
-            };
+      case "playwright_screenshot": {
+        try {
+          const screenshotOptions: any = {
+            type: args.type || "png",
+            fullPage: !!args.fullPage
+          };
+          
+          if (args.selector) {
+            const element = await page!.$(args.selector);
+            if (!element) {
+              return {
+                content: [{
+                  type: "text",
+                  text: `Element not found: ${args.selector}`,
+                }],
+                isError: true
+              };
+            }
+            screenshotOptions.element = element;
           }
-          screenshotOptions.element = element;
-        }
-
-        if (args.mask) {
-          screenshotOptions.mask = await Promise.all(
-            args.mask.map(async (selector: string) => await page!.$(selector))
-          );
-        }
-
-        const screenshot = await page!.screenshot(screenshotOptions);
-        const base64Screenshot = screenshot.toString('base64');
-
-        const responseContent: (TextContent | ImageContent)[] = [];
-
-        // Handle PNG file saving
-        if (args.savePng === true) {
+          
+          if (args.mask) {
+            screenshotOptions.mask = await Promise.all(
+              args.mask.map(async (selector: string) => await page!.$(selector))
+            );
+          }
+          
+          // Generate an output path
           const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-          const filename = `${args.name}-${timestamp}.png`;
+          const filename = `${args.name || 'screenshot'}-${timestamp}.png`;
           const downloadsDir = args.downloadsDir || defaultDownloadsPath;
-
+          
           // Create downloads directory if it doesn't exist
           if (!fs.existsSync(downloadsDir)) {
             fs.mkdirSync(downloadsDir, { recursive: true });
           }
-
-          const filePath = path.join(downloadsDir, filename);
-          await fs.promises.writeFile(filePath, screenshot);
+          
+          const outputPath = path.join(downloadsDir, filename);
+          
+          // Add the path to the screenshot options
+          screenshotOptions.path = outputPath;
+          
+          // Take the screenshot with the path included
+          const screenshot = await page!.screenshot(screenshotOptions);
+          const base64Screenshot = screenshot.toString('base64');
+          
+          const responseContent: TextContent[] = [];
+          
+          // Add relative path info to response
+          const relativePath = path.relative(process.cwd(), outputPath);
           responseContent.push({
             type: "text",
-            text: `Screenshot saved to: ${filePath}`,
-          } as TextContent);
-        }
-
-        // Handle base64 storage
-        if (args.storeBase64 !== false) {
-          screenshots.set(args.name, base64Screenshot);
-          server.notification({
-            method: "notifications/resources/list_changed",
+            text: `Screenshot saved to: ${relativePath}`,
           });
-
-          responseContent.push({
-            type: "image",
-            data: base64Screenshot,
-            mimeType: "image/png",
-          } as ImageContent);
+          
+          // Handle base64 storage, but only store it without returning image content
+          if (args.storeBase64 !== false) {
+            screenshots.set(args.name || 'screenshot', base64Screenshot);
+            server.notification({
+              method: "notifications/resources/list_changed",
+            });
+            
+            responseContent.push({
+              type: "text",
+              text: `Screenshot also stored in memory with name: '${args.name || 'screenshot'}'`,
+            });
+          }
+          
+          return {
+            content: responseContent,
+            isError: false,
+          };
+        } catch (error) {
+          return {
+            content: [{
+              type: "text",
+              text: `Screenshot failed: ${(error as Error).message}`,
+            }],
+            isError: true,
+          };
         }
-
-        return {
-          content: responseContent,
-          isError: false,
-        };
-      } catch (error) {
-        return {
-          content: [{
-            type: "text",
-            text: `Screenshot failed: ${(error as Error).message}`,
-          }],
-          isError: true,
-        };
       }
-    }
     case "playwright_click":
       try {
         await page!.click(args.selector);
