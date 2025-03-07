@@ -4,13 +4,12 @@ import {
   mockFs,
   mockPath,
   setupPlaywrightMocks,
-  setupToolsHandlerIntegrationMocks,
   resetAllMocks,
 } from "./helpers";
 
 // Set up all mocks
 setupPlaywrightMocks();
-setupToolsHandlerIntegrationMocks();
+
 // IMPORTANT: Import the actual handleToolCall function AFTER mocking
 import { handleToolCall } from "../src/toolsHandler";
 

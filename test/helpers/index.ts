@@ -42,22 +42,6 @@ export const mockPage = {
   }),
 };
 
-// Mock browser context
-export const mockContext = {
-  newPage: jest.fn().mockResolvedValue(mockPage),
-};
-
-// Mock browser
-export const mockBrowser = {
-  newContext: jest.fn().mockResolvedValue(mockContext),
-  close: jest.fn().mockResolvedValue(undefined),
-};
-
-// Mock chromium
-export const mockChromium = {
-  launch: jest.fn().mockResolvedValue(mockBrowser),
-};
-
 // Mock API context
 export const mockApiContext = {
   get: jest.fn().mockResolvedValue({
@@ -81,137 +65,6 @@ export const mockApiContext = {
   }),
 };
 
-// Mock request
-export const mockRequest = {
-  newContext: jest.fn().mockResolvedValue(mockApiContext),
-};
-
-// Mock ensureBrowser function
-export const mockEnsureBrowser = jest.fn(() => Promise.resolve(mockPage));
-
-// Mock handleToolCall function with proper response format based on tool name
-export const mockHandleToolCall = jest
-  .fn()
-  .mockImplementation((name, args, server) => {
-    // Default success response
-    const successResponse = {
-      content: [{ type: "text", text: `Successfully executed ${name}` }],
-      isError: false,
-    };
-
-    // Tool-specific responses
-    switch (name) {
-      case "playwright_navigate":
-        return Promise.resolve({
-          content: [{ type: "text", text: `Navigated to ${args.url}` }],
-          isError: false,
-        });
-      case "playwright_screenshot":
-        return Promise.resolve({
-          content: [
-            { type: "text", text: `Screenshot saved with name: ${args.name}` },
-          ],
-          isError: false,
-        });
-      case "playwright_click":
-        return Promise.resolve({
-          content: [{ type: "text", text: `Clicked: ${args.selector}` }],
-          isError: false,
-        });
-      case "playwright_fill":
-        return Promise.resolve({
-          content: [
-            {
-              type: "text",
-              text: `Filled ${args.selector} with: ${args.value}`,
-            },
-          ],
-          isError: false,
-        });
-      case "playwright_select":
-        return Promise.resolve({
-          content: [
-            {
-              type: "text",
-              text: `Selected ${args.selector} with: ${args.value}`,
-            },
-          ],
-          isError: false,
-        });
-      case "playwright_hover":
-        return Promise.resolve({
-          content: [{ type: "text", text: `Hovered ${args.selector}` }],
-          isError: false,
-        });
-      case "playwright_evaluate":
-        return Promise.resolve({
-          content: [{ type: "text", text: `Executed script: ${args.script}` }],
-          isError: false,
-        });
-      case "playwright_get":
-        return Promise.resolve({
-          content: [
-            { type: "text", text: `Performed GET Operation ${args.url}` },
-            { type: "text", text: `Response: {}` },
-            { type: "text", text: `Response code 200` },
-          ],
-          isError: false,
-        });
-      case "playwright_post":
-        return Promise.resolve({
-          content: [
-            {
-              type: "text",
-              text: `Performed POST Operation ${
-                args.url
-              } with data ${JSON.stringify(args.value, null, 2)}`,
-            },
-            { type: "text", text: `Response: {}` },
-            { type: "text", text: `Response code 200` },
-          ],
-          isError: false,
-        });
-      case "playwright_put":
-        return Promise.resolve({
-          content: [
-            {
-              type: "text",
-              text: `Performed PUT Operation ${
-                args.url
-              } with data ${JSON.stringify(args.value, null, 2)}`,
-            },
-            { type: "text", text: `Response: {}` },
-            { type: "text", text: `Response code 200` },
-          ],
-          isError: false,
-        });
-      case "playwright_patch":
-        return Promise.resolve({
-          content: [
-            {
-              type: "text",
-              text: `Performed PATCH Operation ${
-                args.url
-              } with data ${JSON.stringify(args.value, null, 2)}`,
-            },
-            { type: "text", text: `Response: {}` },
-            { type: "text", text: `Response code 200` },
-          ],
-          isError: false,
-        });
-      case "playwright_delete":
-        return Promise.resolve({
-          content: [
-            { type: "text", text: `Performed delete Operation ${args.url}` },
-            { type: "text", text: `Response code 200` },
-          ],
-          isError: false,
-        });
-      default:
-        return Promise.resolve(successResponse);
-    }
-  });
-
 // Mock fs module
 export const mockFs = {
   existsSync: jest.fn().mockReturnValue(true),
@@ -229,6 +82,27 @@ export const getConsoleLogs = jest.fn().mockReturnValue(["Test log"]);
 export const getScreenshots = jest
   .fn()
   .mockReturnValue(new Map([["test", "base64data"]]));
+
+// Mock request
+const mockRequest = {
+  newContext: jest.fn().mockResolvedValue(mockApiContext),
+};
+
+// Mock browser context
+const mockContext = {
+  newPage: jest.fn().mockResolvedValue(mockPage),
+};
+
+// Mock browser
+const mockBrowser = {
+  newContext: jest.fn().mockResolvedValue(mockContext),
+  close: jest.fn().mockResolvedValue(undefined),
+};
+
+// Mock chromium
+export const mockChromium = {
+  launch: jest.fn().mockResolvedValue(mockBrowser),
+};
 
 export const mockPlaywright = () => ({
   chromium: mockChromium,
@@ -255,21 +129,6 @@ export function setupPlaywrightMocks() {
 
   // Mock the path module
   jest.mock("node:path", () => mockPath);
-}
-
-/**
- * Sets up mocks for the toolsHandler module for integration tests
- * This ensures the actual toolsHandler is used but with mocked dependencies
- */
-export function setupToolsHandlerIntegrationMocks() {
-  // Mock the ensureBrowser function to return the mock page
-  jest.mock("../../src/toolsHandler", () => {
-    const originalModule = jest.requireActual("../../src/toolsHandler");
-    return {
-      ...originalModule,
-      ensureBrowser: mockEnsureBrowser,
-    };
-  });
 }
 
 /**
