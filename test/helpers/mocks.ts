@@ -1,7 +1,7 @@
 import {
   API_TOOLS as ACTUAL_API_TOOLS,
   BROWSER_TOOLS as ACTUAL_BROWSER_TOOLS,
-} from "../src/tools";
+} from "../../src/tools";
 
 // Export the actual tool arrays for proper tool detection
 export const API_TOOLS = ACTUAL_API_TOOLS;

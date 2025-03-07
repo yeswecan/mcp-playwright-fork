@@ -1,9 +1,9 @@
-import { mockPage } from "../helpers/mocks";
 import {
+  mockPage,
   setupPlaywrightMocks,
   setupToolsHandlerIntegrationMocks,
   resetAllMocks,
-} from "../helpers/mockSetup";
+} from "./helpers";
 
 // Set up all mocks
 setupPlaywrightMocks();

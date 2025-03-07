@@ -10,7 +10,7 @@ module.exports = {
   ],
   modulePathIgnorePatterns: ["<rootDir>/docs/"],
   moduleNameMapper: {
-    "^./tools.js$": "<rootDir>/helpers/mocks.ts",
-    "^./toolsHandler.js$": "<rootDir>/helpers/mocks.ts",
+    "^./tools.js$": "<rootDir>/test/helpers/mocks.ts",
+    "^./toolsHandler.js$": "<rootDir>/test/helpers/mocks.ts",
   },
 };

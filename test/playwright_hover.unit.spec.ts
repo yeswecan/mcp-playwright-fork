@@ -4,8 +4,8 @@ import {
   mockRequest,
   mockFs,
   mockPath,
-} from "../helpers/mocks";
-import { resetAllMocks } from "../helpers/mockSetup";
+  resetAllMocks,
+} from "./helpers";
 
 // Mock the playwright module
 jest.mock("playwright", () => {

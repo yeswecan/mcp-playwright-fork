@@ -1,5 +1,4 @@
-import { mockPage, mockChromium } from "../helpers/mocks";
-import { resetAllMocks } from "../helpers/mockSetup";
+import { mockPage, mockChromium, resetAllMocks } from "./helpers";
 import { handleToolCall } from "../src/toolsHandler";
 
 // Mock the playwright module

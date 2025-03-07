@@ -6,8 +6,11 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { setupRequestHandlers } from "../src/requestHandler";
 import { createToolDefinitions } from "../src/tools";
-import { mockServer, mockVirtualHandleToolCall } from "../helpers/mocks";
-import { resetAllMocks } from "../helpers/mockSetup";
+import {
+  mockServer,
+  mockVirtualHandleToolCall,
+  resetAllMocks,
+} from "./helpers";
 
 // Automatically mock the toolsHandler module
 jest.mock("../src/toolsHandler");
