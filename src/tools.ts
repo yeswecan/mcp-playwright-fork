@@ -211,7 +211,6 @@ export const BROWSER_TOOLS = [
   "playwright_select",
   "playwright_hover",
   "playwright_evaluate",
-  "playwright_console_logs",
   "playwright_close"
 ];
 
