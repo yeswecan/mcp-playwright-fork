@@ -4,156 +4,178 @@ import {
   mockPath,
   setupPlaywrightMocks,
   resetAllMocks,
+  createMockToolContext,
+  mockServer
 } from "./helpers";
 
 // Set up all mocks
 setupPlaywrightMocks();
 
-// Import the toolsHandler after mocking dependencies
-import { handleToolCall, getScreenshots } from "../src/toolsHandler";
+// Import the toolHandler and ScreenshotTool after mocking dependencies
+import { handleToolCall } from "../src/toolHandler";
+import { ScreenshotTool } from "../src/tools/browser/screenshot";
 
 describe("playwright_screenshot unit tests", () => {
+  let screenshotTool: ScreenshotTool;
+  
   beforeEach(() => {
     // Reset mocks before each test
     resetAllMocks();
+    
+    // Create a new instance of the ScreenshotTool
+    screenshotTool = new ScreenshotTool(mockServer);
   });
 
-  it("should handle playwright_screenshot tool", async () => {
-    // First navigate to a page to ensure browser is initialized
-    await handleToolCall(
-      "playwright_navigate",
-      { url: "https://example.com" },
-      {}
-    );
-
+  it("should handle screenshot tool directly", async () => {
     // Set up the mock
     mockPage.screenshot.mockResolvedValueOnce(Buffer.from("mock-screenshot"));
+    mockFs.existsSync.mockReturnValueOnce(true);
+    mockPath.join.mockReturnValueOnce("/mock/path/screenshot.png");
+    mockPath.relative.mockReturnValueOnce("mock/path/screenshot.png");
 
-    const name = "playwright_screenshot";
-    const args = { name: "test-screenshot" };
-    const server = { notification: jest.fn() };
+    // Create a mock context
+    const context = createMockToolContext();
 
-    const result = await handleToolCall(name, args, server);
-
-    // Verify the screenshot was called
-    expect(mockPage.screenshot).toHaveBeenCalled();
+    // Call the tool directly
+    const result = await screenshotTool.execute(
+      { name: "test-screenshot" },
+      context
+    );
 
     // Verify the result
     expect(result.isError).toBe(false);
-    expect(result.content[0].text).toContain("Screenshot saved");
+    expect(result.content[0].text).toContain("Screenshot saved to");
+    expect(mockPage.screenshot).toHaveBeenCalled();
+    expect(mockServer.notification).toHaveBeenCalled();
   });
 
-  it("should handle playwright_screenshot tool with storeBase64 and directory creation", async () => {
+  it("should handle playwright_screenshot tool through handler", async () => {
     // First navigate to a page to ensure browser is initialized
     await handleToolCall(
       "playwright_navigate",
       { url: "https://example.com" },
-      {}
+      mockServer
     );
 
     // Set up the mock
     mockPage.screenshot.mockResolvedValueOnce(Buffer.from("mock-screenshot"));
-    mockFs.existsSync.mockReturnValue(false); // Directory doesn't exist
-    mockPath.join.mockReturnValue("/tmp/downloads/test-screenshot.png");
+    mockFs.existsSync.mockReturnValueOnce(true);
+    mockPath.join.mockReturnValueOnce("/mock/path/screenshot.png");
+    mockPath.relative.mockReturnValueOnce("mock/path/screenshot.png");
 
-    const name = "playwright_screenshot";
-    const args = {
-      name: "test-screenshot",
-      storeBase64: true,
-      downloadsDir: "/tmp/downloads",
-    };
-    const server = { notification: jest.fn() };
-
-    const result = await handleToolCall(name, args, server);
-
-    // Verify the screenshot was called
-    expect(mockPage.screenshot).toHaveBeenCalled();
-
-    // Verify the directory was created
-    expect(mockFs.mkdirSync).toHaveBeenCalledWith("/tmp/downloads", {
-      recursive: true,
-    });
-
-    // Verify the screenshot is stored in memory
-    expect(getScreenshots().get("test-screenshot")).toBe(
-      Buffer.from("mock-screenshot").toString("base64")
+    // Call the tool through the handler
+    const result = await handleToolCall(
+      "playwright_screenshot",
+      { name: "test-screenshot" },
+      mockServer
     );
-
-    // Verify the notification was sent
-    expect(server.notification).toHaveBeenCalledWith({
-      method: "notifications/resources/list_changed",
-    });
 
     // Verify the result
     expect(result.isError).toBe(false);
-    expect(result.content[0].text).toContain("Screenshot saved");
-    expect(result.content[1].text).toContain(
-      "Screenshot also stored in memory"
+    expect(result.content[0].text).toContain("Screenshot saved to");
+    expect(mockPage.screenshot).toHaveBeenCalled();
+    expect(mockServer.notification).toHaveBeenCalled();
+  });
+
+  it("should handle screenshot with selector", async () => {
+    // Set up the mock
+    const mockElement = { id: "mock-element" };
+    mockPage.$.mockResolvedValueOnce(mockElement);
+    mockPage.screenshot.mockResolvedValueOnce(Buffer.from("mock-screenshot"));
+    mockFs.existsSync.mockReturnValueOnce(true);
+    mockPath.join.mockReturnValueOnce("/mock/path/screenshot.png");
+    mockPath.relative.mockReturnValueOnce("mock/path/screenshot.png");
+
+    // Create a mock context
+    const context = createMockToolContext();
+
+    // Call the tool directly
+    const result = await screenshotTool.execute(
+      { 
+        name: "test-screenshot",
+        selector: "#test-element"
+      },
+      context
+    );
+
+    // Verify the result
+    expect(result.isError).toBe(false);
+    expect(result.content[0].text).toContain("Screenshot saved to");
+    expect(mockPage.$).toHaveBeenCalledWith("#test-element");
+    expect(mockPage.screenshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        element: mockElement
+      })
     );
   });
 
-  it("should handle playwright_screenshot tool when element selector is not found", async () => {
-    // First navigate to a page to ensure browser is initialized
-    await handleToolCall(
-      "playwright_navigate",
-      { url: "https://example.com" },
-      {}
+  it("should handle error when selector not found", async () => {
+    // Set up the mock to return null for the selector
+    mockPage.$.mockResolvedValueOnce(null);
+
+    // Create a mock context
+    const context = createMockToolContext();
+
+    // Call the tool directly
+    const result = await screenshotTool.execute(
+      { 
+        name: "test-screenshot",
+        selector: "#non-existent-element"
+      },
+      context
     );
-
-    // Set up the mock
-    mockPage.screenshot.mockResolvedValueOnce(Buffer.from("mock-screenshot"));
-    mockPage.$.mockResolvedValueOnce(null); // Element not found
-
-    const name = "playwright_screenshot";
-    const args = { name: "test-screenshot", selector: "#non-existent" };
-    const server = { notification: jest.fn() };
-
-    const result = await handleToolCall(name, args, server);
-
-    // Verify the element selector was called
-    expect(mockPage.$).toHaveBeenCalledWith("#non-existent");
 
     // Verify the result
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain("Element not found");
+    expect(mockPage.$).toHaveBeenCalledWith("#non-existent-element");
+    expect(mockPage.screenshot).not.toHaveBeenCalled();
   });
 
-  it("should handle playwright_screenshot tool with mask", async () => {
-    // First navigate to a page to ensure browser is initialized
-    await handleToolCall(
-      "playwright_navigate",
-      { url: "https://example.com" },
-      {}
-    );
-
+  it("should handle fullPage screenshot", async () => {
     // Set up the mock
     mockPage.screenshot.mockResolvedValueOnce(Buffer.from("mock-screenshot"));
+    mockFs.existsSync.mockReturnValueOnce(true);
+    mockPath.join.mockReturnValueOnce("/mock/path/screenshot.png");
+    mockPath.relative.mockReturnValueOnce("mock/path/screenshot.png");
 
-    // Mock the element selector to return a valid element
-    const mockElement = { id: "mock-element" };
-    mockPage.$.mockResolvedValueOnce(mockElement);
+    // Create a mock context
+    const context = createMockToolContext();
 
-    const name = "playwright_screenshot";
-    const args = {
-      name: "test-screenshot",
-      mask: ["#element-to-mask"],
-    };
-    const server = { notification: jest.fn() };
-
-    const result = await handleToolCall(name, args, server);
-
-    // Verify the element selector was called
-    expect(mockPage.$).toHaveBeenCalledWith("#element-to-mask");
-
-    // Verify the screenshot was called with the mask option
-    expect(mockPage.screenshot).toHaveBeenCalledWith(
-      expect.objectContaining({
-        mask: [mockElement],
-      })
+    // Call the tool directly
+    const result = await screenshotTool.execute(
+      { 
+        name: "test-screenshot",
+        fullPage: true
+      },
+      context
     );
 
     // Verify the result
     expect(result.isError).toBe(false);
-    expect(result.content[0].text).toContain("Screenshot saved");
+    expect(result.content[0].text).toContain("Screenshot saved to");
+    expect(mockPage.screenshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fullPage: true
+      })
+    );
+  });
+
+  it("should handle error when page is not available", async () => {
+    // Create a context without a page
+    const context = {
+      server: mockServer
+    };
+
+    // Call the tool directly
+    const result = await screenshotTool.execute(
+      { name: "test-screenshot" },
+      context
+    );
+
+    // Verify the result
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toBe("Browser page not initialized");
+    expect(mockPage.screenshot).not.toHaveBeenCalled();
   });
 });

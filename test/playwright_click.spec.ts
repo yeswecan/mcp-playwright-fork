@@ -1,97 +1,105 @@
-import { mockPage, setupPlaywrightMocks, resetAllMocks } from "./helpers";
+import {
+  mockPage,
+  setupPlaywrightMocks,
+  resetAllMocks,
+  createMockToolContext,
+  mockServer
+} from "./helpers";
 
 // Set up all mocks
 setupPlaywrightMocks();
 
-// IMPORTANT: Import the actual handleToolCall function AFTER mocking
-import { handleToolCall } from "../src/toolsHandler";
+// Import the toolHandler and ClickTool after mocking dependencies
+import { handleToolCall } from "../src/toolHandler";
+import { ClickTool } from "../src/tools/browser/interaction";
 
-describe("playwright_click integration tests", () => {
+describe("playwright_click unit tests", () => {
+  let clickTool: ClickTool;
+  
   beforeEach(() => {
     // Reset mocks before each test
     resetAllMocks();
+    
+    // Create a new instance of the ClickTool
+    clickTool = new ClickTool(mockServer);
   });
 
-  it("should click an element on a page", async () => {
-    // Set up the test HTML content
-    mockPage.setContent.mockResolvedValueOnce(undefined);
+  it("should handle click tool directly", async () => {
+    // Set up the mock
+    mockPage.click.mockResolvedValueOnce(undefined);
+    
+    // Create a mock context
+    const context = createMockToolContext();
 
-    // First navigate to a page
-    await handleToolCall(
-      "playwright_navigate",
-      { url: "https://example.com" },
-      {}
+    // Call the tool directly
+    const result = await clickTool.execute(
+      { selector: "#test-button" },
+      context
     );
-
-    // Then click an element
-    const selector = "#my-button";
-    const result = await handleToolCall("playwright_click", { selector }, {});
-
-    // Verify the click was called with the correct selector
-    expect(mockPage.click).toHaveBeenCalledWith(selector);
 
     // Verify the result
-    expect(result).toEqual({
-      content: [{ type: "text", text: `Clicked: ${selector}` }],
-      isError: false,
-    });
+    expect(result.isError).toBe(false);
+    expect(result.content[0].text).toBe("Clicked element: #test-button");
+    expect(mockPage.click).toHaveBeenCalledWith("#test-button");
   });
 
-  it("should handle errors when element is not found", async () => {
-    // Set up the test HTML content
-    mockPage.setContent.mockResolvedValueOnce(undefined);
-
-    // Set up the mock to throw an error when clicking
-    mockPage.click.mockRejectedValueOnce(new Error("Element not found"));
-
-    // First navigate to a page
-    await handleToolCall(
-      "playwright_navigate",
-      { url: "https://example.com" },
-      {}
-    );
-
-    // Then try to click a non-existent element
-    const selector = "#non-existent";
-    const result = await handleToolCall("playwright_click", { selector }, {});
-
-    // Verify the click was called with the correct selector
-    expect(mockPage.click).toHaveBeenCalledWith(selector);
-
-    // Verify the error result
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain("Failed to click");
-  });
-
-  it("should handle playwright_click after playwright_screenshot with selector", async () => {
-    // Set up the test HTML content
-    mockPage.setContent.mockResolvedValueOnce(undefined);
-
+  it("should handle playwright_click tool through handler", async () => {
     // First navigate to a page to ensure browser is initialized
     await handleToolCall(
       "playwright_navigate",
       { url: "https://example.com" },
-      {}
+      mockServer
     );
 
-    // Take a screenshot with a selector
-    await handleToolCall(
-      "playwright_screenshot",
-      { selector: "#screenshot-element", name: "test-screenshot" },
-      {}
+    // Set up the mock
+    mockPage.click.mockResolvedValueOnce(undefined);
+
+    // Call the tool through the handler
+    const result = await handleToolCall(
+      "playwright_click",
+      { selector: "#test-button" },
+      mockServer
     );
-
-    const name = "playwright_click";
-    const args = { selector: "#test-button" };
-    const server = {};
-
-    const result = await handleToolCall(name, args, server);
-
-    // Verify the click was called with the correct selector
-    expect(mockPage.click).toHaveBeenCalledWith("#test-button");
 
     // Verify the result
     expect(result.isError).toBe(false);
-    expect(result.content[0].text).toBe(`Clicked: #test-button`);
+    expect(result.content[0].text).toBe("Clicked element: #test-button");
+    expect(mockPage.click).toHaveBeenCalledWith("#test-button");
+  });
+
+  it("should handle click errors", async () => {
+    // Set up the mock to throw an error
+    mockPage.click.mockRejectedValueOnce(new Error("Element not found"));
+    
+    // Create a mock context
+    const context = createMockToolContext();
+
+    // Call the tool directly
+    const result = await clickTool.execute(
+      { selector: "#non-existent-button" },
+      context
+    );
+
+    // Verify the result
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain("Operation failed: Element not found");
+  });
+
+  it("should handle error when page is not available", async () => {
+    // Create a context without a page
+    const context = {
+      server: mockServer
+    };
+
+    // Call the tool directly
+    const result = await clickTool.execute(
+      { selector: "#test-button" },
+      context
+    );
+
+    // Verify the result
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toBe("Browser page not initialized");
+    expect(mockPage.click).not.toHaveBeenCalled();
   });
 });

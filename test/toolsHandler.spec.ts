@@ -1,6 +1,6 @@
-import { handleToolCall } from "../src/toolsHandler";
+import { handleToolCall } from "../src/toolHandler";
 
-describe("toolsHandler unit tests", () => {
+describe("toolHandler unit tests", () => {
   let server: any;
 
   beforeEach(() => {

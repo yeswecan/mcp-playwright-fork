@@ -2,6 +2,8 @@ import {
   API_TOOLS as ACTUAL_API_TOOLS,
   BROWSER_TOOLS as ACTUAL_BROWSER_TOOLS,
 } from "../../src/tools";
+import type { ToolContext } from "../../src/tools/common/types";
+import type { Page, Browser, APIRequestContext } from "playwright";
 
 // Export the actual tool arrays for proper tool detection
 export const API_TOOLS = ACTUAL_API_TOOLS;
@@ -20,6 +22,7 @@ export const mockVirtualHandleToolCall = jest
 // Mock server for request handler tests
 export const mockServer = {
   setRequestHandler: jest.fn(),
+  notification: jest.fn(),
 };
 
 // Mock page with all required methods
@@ -46,22 +49,32 @@ export const mockPage = {
 export const mockApiContext = {
   get: jest.fn().mockResolvedValue({
     json: jest.fn().mockResolvedValue({}),
+    text: jest.fn().mockResolvedValue("{}"),
     status: jest.fn().mockReturnValue(200),
+    statusText: jest.fn().mockReturnValue("OK"),
   }),
   post: jest.fn().mockResolvedValue({
     json: jest.fn().mockResolvedValue({}),
+    text: jest.fn().mockResolvedValue("{}"),
     status: jest.fn().mockReturnValue(200),
+    statusText: jest.fn().mockReturnValue("OK"),
   }),
   put: jest.fn().mockResolvedValue({
     json: jest.fn().mockResolvedValue({}),
+    text: jest.fn().mockResolvedValue("{}"),
     status: jest.fn().mockReturnValue(200),
+    statusText: jest.fn().mockReturnValue("OK"),
   }),
   patch: jest.fn().mockResolvedValue({
     json: jest.fn().mockResolvedValue({}),
+    text: jest.fn().mockResolvedValue("{}"),
     status: jest.fn().mockReturnValue(200),
+    statusText: jest.fn().mockReturnValue("OK"),
   }),
   delete: jest.fn().mockResolvedValue({
+    text: jest.fn().mockResolvedValue("{}"),
     status: jest.fn().mockReturnValue(200),
+    statusText: jest.fn().mockReturnValue("OK"),
   }),
 };
 
@@ -94,7 +107,7 @@ const mockContext = {
 };
 
 // Mock browser
-const mockBrowser = {
+export const mockBrowser = {
   newContext: jest.fn().mockResolvedValue(mockContext),
   close: jest.fn().mockResolvedValue(undefined),
 };
@@ -136,4 +149,16 @@ export function setupPlaywrightMocks() {
  */
 export function resetAllMocks() {
   jest.clearAllMocks();
+}
+
+/**
+ * Creates a mock ToolContext for testing
+ */
+export function createMockToolContext(): ToolContext {
+  return {
+    page: mockPage as unknown as Page,
+    browser: mockBrowser as unknown as Browser,
+    apiContext: mockApiContext as unknown as APIRequestContext,
+    server: mockServer
+  };
 }
