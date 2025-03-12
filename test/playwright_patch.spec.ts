@@ -54,7 +54,7 @@ describe("playwright_patch unit tests", () => {
     expect((result.content[2] as TextContent).text).toContain("success");
     expect(mockApiContext.patch).toHaveBeenCalledWith(
       "https://api.example.com/users/123", 
-      { data: patchData }
+      { data: JSON.stringify(patchData) }
     );
   });
 
@@ -85,7 +85,7 @@ describe("playwright_patch unit tests", () => {
     expect((result.content[2] as TextContent).text).toContain("success");
     expect(mockApiContext.patch).toHaveBeenCalledWith(
       "https://api.example.com/users/123", 
-      { data: patchData }
+      { data: JSON.stringify(patchData) }
     );
   });
 

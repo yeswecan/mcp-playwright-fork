@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import type { Page } from 'playwright';
-import { BrowserToolBase } from './base.js';
-import { ToolContext, ToolResponse, createSuccessResponse } from '../common/types.js';
+import { BrowserToolBase } from './base';
+import { ToolContext, ToolResponse, createSuccessResponse } from '../common/types';
 
 const defaultDownloadsPath = path.join(os.homedir(), 'Downloads');
 

@@ -1,5 +1,5 @@
-import { BrowserToolBase } from './base.js';
-import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse } from '../common/types.js';
+import { BrowserToolBase } from './base';
+import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse } from '../common/types';
 
 /**
  * Tool for clicking elements on the page
@@ -45,8 +45,9 @@ export class FillTool extends BrowserToolBase {
    */
   async execute(args: any, context: ToolContext): Promise<ToolResponse> {
     return this.safeExecute(context, async (page) => {
+      await page.waitForSelector(args.selector);
       await page.fill(args.selector, args.value);
-      return createSuccessResponse(`Filled ${args.selector} with value: ${args.value}`);
+      return createSuccessResponse(`Filled ${args.selector} with: ${args.value}`);
     });
   }
 }
@@ -60,8 +61,9 @@ export class SelectTool extends BrowserToolBase {
    */
   async execute(args: any, context: ToolContext): Promise<ToolResponse> {
     return this.safeExecute(context, async (page) => {
+      await page.waitForSelector(args.selector);
       await page.selectOption(args.selector, args.value);
-      return createSuccessResponse(`Selected option ${args.value} in ${args.selector}`);
+      return createSuccessResponse(`Selected ${args.selector} with: ${args.value}`);
     });
   }
 }
@@ -75,8 +77,9 @@ export class HoverTool extends BrowserToolBase {
    */
   async execute(args: any, context: ToolContext): Promise<ToolResponse> {
     return this.safeExecute(context, async (page) => {
+      await page.waitForSelector(args.selector);
       await page.hover(args.selector);
-      return createSuccessResponse(`Hovered over element: ${args.selector}`);
+      return createSuccessResponse(`Hovered ${args.selector}`);
     });
   }
 }

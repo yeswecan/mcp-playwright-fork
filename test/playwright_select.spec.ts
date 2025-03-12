@@ -4,7 +4,7 @@ import { mockPage, resetAllMocks, setupPlaywrightMocks } from "./helpers";
 setupPlaywrightMocks();
 
 // Import the toolsHandler after mocking dependencies
-import { handleToolCall } from "../src/toolsHandler";
+import { handleToolCall } from "../src/toolHandler";
 
 describe("playwright_select unit tests", () => {
   beforeEach(() => {

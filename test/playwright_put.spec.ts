@@ -54,7 +54,7 @@ describe("playwright_put unit tests", () => {
     expect((result.content[2] as TextContent).text).toContain("success");
     expect(mockApiContext.put).toHaveBeenCalledWith(
       "https://api.example.com/users/123", 
-      { data: putData }
+      { data: JSON.stringify(putData) }
     );
   });
 
@@ -85,7 +85,7 @@ describe("playwright_put unit tests", () => {
     expect((result.content[2] as TextContent).text).toContain("success");
     expect(mockApiContext.put).toHaveBeenCalledWith(
       "https://api.example.com/users/123", 
-      { data: putData }
+      { data: JSON.stringify(putData) }
     );
   });
 

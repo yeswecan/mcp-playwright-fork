@@ -1,5 +1,5 @@
-import { BrowserToolBase } from './base.js';
-import { ToolContext, ToolResponse, createSuccessResponse } from '../common/types.js';
+import { BrowserToolBase } from './base';
+import { ToolContext, ToolResponse, createSuccessResponse } from '../common/types';
 
 /**
  * Tool for retrieving and filtering console logs from the browser

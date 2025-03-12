@@ -1,5 +1,5 @@
-import { ApiToolBase } from './base.js';
-import { ToolContext, ToolResponse, createSuccessResponse } from '../common/types.js';
+import { ApiToolBase } from './base';
+import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse } from '../common/types';
 
 /**
  * Tool for making GET requests
@@ -37,6 +37,16 @@ export class PostRequestTool extends ApiToolBase {
    */
   async execute(args: any, context: ToolContext): Promise<ToolResponse> {
     return this.safeExecute(context, async (apiContext) => {
+      // Check if the value is valid JSON if it starts with { or [
+      if (args.value && typeof args.value === 'string' && 
+          (args.value.startsWith('{') || args.value.startsWith('['))) {
+        try {
+          JSON.parse(args.value);
+        } catch (error) {
+          return createErrorResponse(`Failed to parse request body: ${(error as Error).message}`);
+        }
+      }
+      
       const response = await apiContext.post(args.url, {
         data: args.value
       });
@@ -66,6 +76,16 @@ export class PutRequestTool extends ApiToolBase {
    */
   async execute(args: any, context: ToolContext): Promise<ToolResponse> {
     return this.safeExecute(context, async (apiContext) => {
+      // Check if the value is valid JSON if it starts with { or [
+      if (args.value && typeof args.value === 'string' && 
+          (args.value.startsWith('{') || args.value.startsWith('['))) {
+        try {
+          JSON.parse(args.value);
+        } catch (error) {
+          return createErrorResponse(`Failed to parse request body: ${(error as Error).message}`);
+        }
+      }
+      
       const response = await apiContext.put(args.url, {
         data: args.value
       });
@@ -95,6 +115,16 @@ export class PatchRequestTool extends ApiToolBase {
    */
   async execute(args: any, context: ToolContext): Promise<ToolResponse> {
     return this.safeExecute(context, async (apiContext) => {
+      // Check if the value is valid JSON if it starts with { or [
+      if (args.value && typeof args.value === 'string' && 
+          (args.value.startsWith('{') || args.value.startsWith('['))) {
+        try {
+          JSON.parse(args.value);
+        } catch (error) {
+          return createErrorResponse(`Failed to parse request body: ${(error as Error).message}`);
+        }
+      }
+      
       const response = await apiContext.patch(args.url, {
         data: args.value
       });
