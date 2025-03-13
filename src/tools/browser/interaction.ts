@@ -1,5 +1,5 @@
-import { BrowserToolBase } from './base';
-import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse } from '../common/types';
+import { BrowserToolBase } from './base.js';
+import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse } from '../common/types.js';
 
 /**
  * Tool for clicking elements on the page

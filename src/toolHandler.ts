@@ -1,13 +1,13 @@
 import { Browser, Page, chromium, request } from 'playwright';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { BROWSER_TOOLS, API_TOOLS } from './tools';
-import { ToolContext } from './tools/common/types';
+import { BROWSER_TOOLS, API_TOOLS } from './tools.js';
+import { ToolContext } from './tools/common/types.js';
 import { 
   ScreenshotTool,
   NavigationTool,
   CloseBrowserTool,
   ConsoleLogsTool
-} from './tools/browser';
+} from './tools/browser/index.js';
 import {
   ClickTool,
   IframeClickTool,
@@ -15,14 +15,14 @@ import {
   SelectTool,
   HoverTool,
   EvaluateTool
-} from './tools/browser/interaction';
+} from './tools/browser/interaction.js';
 import {
   GetRequestTool,
   PostRequestTool,
   PutRequestTool,
   PatchRequestTool,
   DeleteRequestTool
-} from './tools/api/requests';
+} from './tools/api/requests.js';
 
 // Global state
 let browser: Browser | undefined;

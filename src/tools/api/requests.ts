@@ -1,5 +1,5 @@
-import { ApiToolBase } from './base';
-import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse } from '../common/types';
+import { ApiToolBase } from './base.js';
+import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse } from '../common/types.js';
 
 /**
  * Tool for making GET requests

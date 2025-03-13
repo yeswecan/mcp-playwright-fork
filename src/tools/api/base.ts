@@ -1,5 +1,5 @@
 import type { APIRequestContext } from 'playwright';
-import { ToolHandler, ToolContext, ToolResponse, createErrorResponse } from '../common/types';
+import { ToolHandler, ToolContext, ToolResponse, createErrorResponse } from '../common/types.js';
 
 /**
  * Base class for all API-based tools

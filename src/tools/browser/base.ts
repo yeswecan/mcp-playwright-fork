@@ -1,5 +1,5 @@
 import type { Browser, Page } from 'playwright';
-import { ToolHandler, ToolContext, ToolResponse, createErrorResponse } from '../common/types';
+import { ToolHandler, ToolContext, ToolResponse, createErrorResponse } from '../common/types.js';
 
 /**
  * Base class for all browser-based tools

@@ -1,5 +1,5 @@
-import { BrowserToolBase } from './base';
-import { ToolContext, ToolResponse, createSuccessResponse } from '../common/types';
+import { BrowserToolBase } from './base.js';
+import { ToolContext, ToolResponse, createSuccessResponse } from '../common/types.js';
 
 /**
  * Tool for navigating to URLs

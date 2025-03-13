@@ -1,6 +1,6 @@
-export * from './common/types';
-export * from './browser/index';
-export * from './api/index';
+export * from './common/types.js';
+export * from './browser/index.js';
+export * from './api/index.js';
 
 // Tool type constants
 export const BROWSER_TOOLS = [
