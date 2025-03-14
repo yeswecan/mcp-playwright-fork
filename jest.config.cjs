@@ -10,7 +10,14 @@ module.exports = {
   ],
   modulePathIgnorePatterns: ["<rootDir>/docs/"],
   moduleNameMapper: {
-    "^./tools.js$": "<rootDir>/test/helpers/index.ts",
-    "^./toolsHandler.js$": "<rootDir>/test/helpers/index.ts",
+    "^(.*)\\.js$": "$1"
   },
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
+      useESM: true,
+      tsconfig: 'tsconfig.test.json'
+    }],
+  },
+  extensionsToTreatAsEsm: ['.ts'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 };

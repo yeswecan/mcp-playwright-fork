@@ -1,164 +1,36 @@
-import {
-  API_TOOLS as ACTUAL_API_TOOLS,
-  BROWSER_TOOLS as ACTUAL_BROWSER_TOOLS,
-} from "../../src/tools";
-import type { ToolContext } from "../../src/tools/common/types";
-import type { Page, Browser, APIRequestContext } from "playwright";
+// Mock exports for tools.js
+export const BROWSER_TOOLS = [
+  "playwright_navigate",
+  "playwright_screenshot",
+  "playwright_click",
+  "playwright_iframe_click",
+  "playwright_fill",
+  "playwright_select",
+  "playwright_hover",
+  "playwright_evaluate",
+  "playwright_close"
+];
 
-// Export the actual tool arrays for proper tool detection
-export const API_TOOLS = ACTUAL_API_TOOLS;
-export const BROWSER_TOOLS = ACTUAL_BROWSER_TOOLS;
+export const API_TOOLS = [
+  "playwright_get",
+  "playwright_post",
+  "playwright_put",
+  "playwright_delete",
+  "playwright_patch"
+];
 
-// Mock for virtual handleToolCall
-export const mockVirtualHandleToolCall = jest
-  .fn()
-  .mockImplementation((name, args, server) => {
-    return Promise.resolve({
-      content: [{ type: "text", text: `Mocked result for ${name}` }],
-      isError: false,
-    });
-  });
-
-// Mock server for request handler tests
-export const mockServer = {
-  setRequestHandler: jest.fn(),
-  notification: jest.fn(),
-};
-
-// Mock page with all required methods
-export const mockPage = {
-  goto: jest.fn(),
-  screenshot: jest.fn().mockResolvedValue(Buffer.from("mock-screenshot")),
-  $: jest.fn().mockResolvedValue(null),
-  click: jest.fn(),
-  fill: jest.fn(),
-  selectOption: jest.fn(),
-  hover: jest.fn(),
-  evaluate: jest.fn().mockResolvedValue({ result: "mock-result", logs: [] }),
-  waitForSelector: jest.fn(),
-  setContent: jest.fn(),
-  on: jest.fn(),
-  frameLocator: jest.fn().mockReturnValue({
-    locator: jest.fn().mockReturnValue({
-      click: jest.fn(),
-    }),
-  }),
-};
-
-// Mock API context
-export const mockApiContext = {
-  get: jest.fn().mockResolvedValue({
-    json: jest.fn().mockResolvedValue({}),
-    text: jest.fn().mockResolvedValue("{}"),
-    status: jest.fn().mockReturnValue(200),
-    statusText: jest.fn().mockReturnValue("OK"),
-  }),
-  post: jest.fn().mockResolvedValue({
-    json: jest.fn().mockResolvedValue({}),
-    text: jest.fn().mockResolvedValue("{}"),
-    status: jest.fn().mockReturnValue(200),
-    statusText: jest.fn().mockReturnValue("OK"),
-  }),
-  put: jest.fn().mockResolvedValue({
-    json: jest.fn().mockResolvedValue({}),
-    text: jest.fn().mockResolvedValue("{}"),
-    status: jest.fn().mockReturnValue(200),
-    statusText: jest.fn().mockReturnValue("OK"),
-  }),
-  patch: jest.fn().mockResolvedValue({
-    json: jest.fn().mockResolvedValue({}),
-    text: jest.fn().mockResolvedValue("{}"),
-    status: jest.fn().mockReturnValue(200),
-    statusText: jest.fn().mockReturnValue("OK"),
-  }),
-  delete: jest.fn().mockResolvedValue({
-    text: jest.fn().mockResolvedValue("{}"),
-    status: jest.fn().mockReturnValue(200),
-    statusText: jest.fn().mockReturnValue("OK"),
-  }),
-};
-
-// Mock fs module
-export const mockFs = {
-  existsSync: jest.fn().mockReturnValue(true),
-  mkdirSync: jest.fn(),
-};
-
-// Mock path module
-export const mockPath = {
-  join: jest.fn().mockImplementation((...args) => args.join("/")),
-  relative: jest.fn().mockImplementation((from, to) => to),
-};
-
-export const handleToolCall = mockVirtualHandleToolCall;
-export const getConsoleLogs = jest.fn().mockReturnValue(["Test log"]);
-export const getScreenshots = jest
-  .fn()
-  .mockReturnValue(new Map([["test", "base64data"]]));
-
-// Mock request
-const mockRequest = {
-  newContext: jest.fn().mockResolvedValue(mockApiContext),
-};
-
-// Mock browser context
-const mockContext = {
-  newPage: jest.fn().mockResolvedValue(mockPage),
-};
-
-// Mock browser
-export const mockBrowser = {
-  newContext: jest.fn().mockResolvedValue(mockContext),
-  close: jest.fn().mockResolvedValue(undefined),
-};
-
-// Mock chromium
-export const mockChromium = {
-  launch: jest.fn().mockResolvedValue(mockBrowser),
-};
-
-export const mockPlaywright = () => ({
-  chromium: mockChromium,
-  request: mockRequest,
-});
-
-export const mockNodeModules = () => ({
-  fs: mockFs,
-  path: mockPath,
-});
-
-/**
- * Sets up mocks for Playwright-related modules
- */
-export function setupPlaywrightMocks() {
-  // Mock the playwright module
-  jest.mock("playwright", () => ({
-    chromium: mockChromium,
-    request: mockRequest,
-  }));
-
-  // Mock the fs module
-  jest.mock("node:fs", () => mockFs);
-
-  // Mock the path module
-  jest.mock("node:path", () => mockPath);
-}
-
-/**
- * Resets all mocks before each test
- */
-export function resetAllMocks() {
-  jest.clearAllMocks();
-}
-
-/**
- * Creates a mock ToolContext for testing
- */
-export function createMockToolContext(): ToolContext {
-  return {
-    page: mockPage as unknown as Page,
-    browser: mockBrowser as unknown as Browser,
-    apiContext: mockApiContext as unknown as APIRequestContext,
-    server: mockServer
-  };
-}
+export function createToolDefinitions() {
+  return [
+    {
+      name: "playwright_navigate",
+      description: "Navigate to a URL",
+      inputSchema: {
+        type: "object",
+        properties: {
+          url: { type: "string" }
+        },
+        required: ["url"],
+      },
+    }
+  ];
+} 
