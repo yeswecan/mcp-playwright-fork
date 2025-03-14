@@ -8,7 +8,13 @@ module.exports = {
     'src/**/*.ts',
     '!src/index.ts', // exclude index.ts
   ],
-  modulePathIgnorePatterns: ["<rootDir>/docs/"],
+  testMatch: [
+    '<rootDir>/src/__tests__/**/*.test.ts'
+  ],
+  modulePathIgnorePatterns: [
+    "<rootDir>/docs/",
+    "<rootDir>/dist/"
+  ],
   moduleNameMapper: {
     "^(.*)\\.js$": "$1"
   },
