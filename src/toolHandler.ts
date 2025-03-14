@@ -1,12 +1,16 @@
-import { Browser, Page, chromium, request } from 'playwright';
+import type { Browser, Page } from 'playwright';
+import { chromium, request } from 'playwright';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { BROWSER_TOOLS, API_TOOLS } from './tools.js';
-import { ToolContext } from './tools/common/types.js';
+import type { ToolContext } from './tools/common/types.js';
 import { 
   ScreenshotTool,
   NavigationTool,
   CloseBrowserTool,
-  ConsoleLogsTool
+  ConsoleLogsTool,
+  ExpectResponseTool,
+  AssertResponseTool,
+  CustomUserAgentTool
 } from './tools/browser/index.js';
 import {
   ClickTool,
@@ -39,19 +43,32 @@ let fillTool: FillTool;
 let selectTool: SelectTool;
 let hoverTool: HoverTool;
 let evaluateTool: EvaluateTool;
+let expectResponseTool: ExpectResponseTool;
+let assertResponseTool: AssertResponseTool;
+let customUserAgentTool: CustomUserAgentTool;
 let getRequestTool: GetRequestTool;
 let postRequestTool: PostRequestTool;
 let putRequestTool: PutRequestTool;
 let patchRequestTool: PatchRequestTool;
 let deleteRequestTool: DeleteRequestTool;
 
+interface BrowserSettings {
+  viewport?: {
+    width?: number;
+    height?: number;
+  };
+  userAgent?: string;
+}
+
 /**
  * Ensures a browser is launched and returns the page
  */
-async function ensureBrowser(viewport?: { width?: number; height?: number }) {
+async function ensureBrowser(browserSettings?: BrowserSettings) {
   if (!browser) {
+    const { viewport, userAgent } = browserSettings ?? {};
     browser = await chromium.launch({ headless: false });
     const context = await browser.newContext({
+      ...userAgent && { userAgent },
       viewport: {
         width: viewport?.width ?? 1280,
         height: viewport?.height ?? 720,
@@ -95,6 +112,9 @@ function initializeTools(server: any) {
   if (!selectTool) selectTool = new SelectTool(server);
   if (!hoverTool) hoverTool = new HoverTool(server);
   if (!evaluateTool) evaluateTool = new EvaluateTool(server);
+  if (!expectResponseTool) expectResponseTool = new ExpectResponseTool(server);
+  if (!assertResponseTool) assertResponseTool = new AssertResponseTool(server);
+  if (!customUserAgentTool) customUserAgentTool = new CustomUserAgentTool(server);
   
   // API tools
   if (!getRequestTool) getRequestTool = new GetRequestTool(server);
@@ -122,10 +142,14 @@ export async function handleToolCall(
   
   // Set up browser if needed
   if (BROWSER_TOOLS.includes(name)) {
-    context.page = await ensureBrowser({
-      width: args.width,
-      height: args.height
-    });
+    const browserSettings = {
+      viewport: {
+        width: args.width,
+        height: args.height
+      },
+      userAgent: name === "playwright_custom_user_agent" ? args.userAgent : undefined
+    };
+    context.page = await ensureBrowser(browserSettings);
     context.browser = browser;
   }
 
@@ -166,6 +190,15 @@ export async function handleToolCall(
       
     case "playwright_evaluate":
       return await evaluateTool.execute(args, context);
+
+    case "playwright_expect_response":
+      return await expectResponseTool.execute(args, context);
+
+    case "playwright_assert_response":
+      return await assertResponseTool.execute(args, context);
+
+    case "playwright_custom_user_agent":
+      return await customUserAgentTool.execute(args, context);
       
     // API tools
     case "playwright_get":

@@ -198,6 +198,41 @@ export function createToolDefinitions() {
         required: ["url"],
       },
     },
+    {
+      name: "playwright_expect_response",
+      description: "Ask Playwright to start waiting for a HTTP response. This tool initiates the wait operation but does not wait for its completion.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          id: { type: "string", description: "Unique & arbitrary identifier to be used for retrieving this response later with `Playwright_assert_response`." },
+          url: { type: "string", description: "URL pattern to match in the response." }
+        },
+        required: ["id", "url"],
+      },
+    },
+    {
+      name: "playwright_assert_response",
+      description: "Wait for and validate a previously initiated HTTP response wait operation.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          id: { type: "string", description: "Identifier of the HTTP response initially expected using `Playwright_expect_response`." },
+          value: { type: "string", description: "Data to expect in the body of the HTTP response. If provided, the assertion will fail if this value is not found in the response body." }
+        },
+        required: ["id"],
+      },
+    },
+    {
+      name: "playwright_custom_user_agent",
+      description: "Set a custom User Agent for the browser",
+      inputSchema: {
+        type: "object",
+        properties: {
+          userAgent: { type: "string", description: "Custom User Agent for the Playwright browser instance" }
+        },
+        required: ["userAgent"],
+      },
+    },
   ] as const satisfies Tool[];
 }
 
@@ -211,7 +246,10 @@ export const BROWSER_TOOLS = [
   "playwright_select",
   "playwright_hover",
   "playwright_evaluate",
-  "playwright_close"
+  "playwright_close",
+  "playwright_expect_response",
+  "playwright_assert_response",
+  "playwright_custom_user_agent",
 ];
 
 // API Request tools for conditional launch
