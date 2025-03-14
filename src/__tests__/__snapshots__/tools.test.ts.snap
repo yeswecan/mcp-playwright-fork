@@ -367,5 +367,21 @@ exports[`Tool Definitions should match snapshot 1`] = `
     },
     "name": "playwright_assert_response",
   },
+  {
+    "description": "Set a custom User Agent for the browser",
+    "inputSchema": {
+      "properties": {
+        "userAgent": {
+          "description": "Custom User Agent for the Playwright browser instance",
+          "type": "string",
+        },
+      },
+      "required": [
+        "userAgent",
+      ],
+      "type": "object",
+    },
+    "name": "playwright_custom_user_agent",
+  },
 ]
 `;

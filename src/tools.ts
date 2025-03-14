@@ -222,6 +222,17 @@ export function createToolDefinitions() {
         required: ["id"],
       },
     },
+    {
+      name: "playwright_custom_user_agent",
+      description: "Set a custom User Agent for the browser",
+      inputSchema: {
+        type: "object",
+        properties: {
+          userAgent: { type: "string", description: "Custom User Agent for the Playwright browser instance" }
+        },
+        required: ["userAgent"],
+      },
+    },
   ] as const satisfies Tool[];
 }
 
@@ -237,7 +248,8 @@ export const BROWSER_TOOLS = [
   "playwright_evaluate",
   "playwright_close",
   "playwright_expect_response",
-  "playwright_assert_response"
+  "playwright_assert_response",
+  "playwright_custom_user_agent",
 ];
 
 // API Request tools for conditional launch
