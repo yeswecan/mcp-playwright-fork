@@ -19,7 +19,8 @@
     "prepare": "npm run build",
     "watch": "tsc --watch",
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:custom": "node run-tests.cjs"
   },
   "repository": {
     "type": "git",
