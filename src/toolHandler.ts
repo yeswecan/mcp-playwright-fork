@@ -37,8 +37,37 @@ let page: Page | undefined;
  * Used when browser is closed
  */
 export function resetBrowserState() {
-  browser = undefined;
-  page = undefined;
+  console.log('Resetting browser state');
+  try {
+    // Try to close the browser if it's still connected but not properly closed
+    if (browser) {
+      if (browser.isConnected) {
+        // Use a non-blocking approach to avoid hanging if there's an issue
+        browser.close().catch((e) => {
+          console.error('Error during browser close:', e);
+          // Ignore errors during cleanup
+        });
+      }
+      
+      // Force garbage collection by removing all references
+      for (const context of browser.contexts()) {
+        try {
+          context.close().catch(() => {
+            // Ignore errors
+          });
+        } catch (e) {
+          // Ignore any errors
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error during browser cleanup:', e);
+    // Ignore any errors during cleanup
+  } finally {
+    // Always reset the references
+    browser = undefined;
+    page = undefined;
+  }
 }
 
 // Tool instances
@@ -74,12 +103,36 @@ interface BrowserSettings {
  * Ensures a browser is launched and returns the page
  */
 async function ensureBrowser(browserSettings?: BrowserSettings) {
-  if (!browser) {
+  // Always create a new browser instance
+  // Close any existing instance first
+  try {
+    if (browser) {
+      await browser.close().catch(e => console.error('Error closing browser:', e));
+      browser = undefined;
+      page = undefined;
+    }
+  } catch (e) {
+    console.error('Error during cleanup:', e);
+    browser = undefined;
+    page = undefined;
+  }
+
+  // Create a fresh browser instance
+  try {
     const { viewport, userAgent, headless = false } = browserSettings ?? {};
-    browser = await chromium.launch({ headless });
+    browser = await chromium.launch({ 
+      headless,
+      // Add stability options
+      args: [
+        '--disable-dev-shm-usage',
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ]
+    });
 
     // Add cleanup logic when browser is disconnected
     browser.on('disconnected', () => {
+      console.log('Browser disconnected event fired');
       browser = undefined;
       page = undefined;
     });
@@ -101,8 +154,14 @@ async function ensureBrowser(browserSettings?: BrowserSettings) {
         consoleLogsTool.registerConsoleMessage(msg.type(), msg.text());
       }
     });
+    
+    return page;
+  } catch (error) {
+    console.error('Error creating browser instance:', error);
+    browser = undefined;
+    page = undefined;
+    throw error;
   }
-  return page!;
 }
 
 /**
@@ -159,6 +218,16 @@ export async function handleToolCall(
   
   // Set up browser if needed
   if (BROWSER_TOOLS.includes(name)) {
+    // Always create a fresh browser for each navigation operation
+    if (name === "playwright_navigate") {
+      resetBrowserState(); // Force a new browser creation
+    }
+    // For other operations, check if browser is healthy
+    else if (browser && (!browser.isConnected || page?.isClosed())) {
+      // Reset state so a new browser will be created
+      resetBrowserState();
+    }
+    
     const browserSettings = {
       viewport: {
         width: args.width,
@@ -167,8 +236,19 @@ export async function handleToolCall(
       userAgent: name === "playwright_custom_user_agent" ? args.userAgent : undefined,
       headless: args.headless
     };
-    context.page = await ensureBrowser(browserSettings);
-    context.browser = browser;
+    
+    try {
+      context.page = await ensureBrowser(browserSettings);
+      context.browser = browser;
+    } catch (error) {
+      return {
+        content: [{
+          type: "text",
+          text: `Failed to create browser: ${(error as Error).message}`,
+        }],
+        isError: true,
+      };
+    }
   }
 
   // Set up API context if needed

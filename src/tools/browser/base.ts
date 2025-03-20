@@ -51,13 +51,41 @@ export abstract class BrowserToolBase implements ToolHandler {
     context: ToolContext,
     operation: (page: Page) => Promise<ToolResponse>
   ): Promise<ToolResponse> {
-    const pageError = this.validatePageAvailable(context);
-    if (pageError) return pageError;
+    // Basic validation first
+    if (!context.page || !context.browser) {
+      const { resetBrowserState } = await import('../../toolHandler.js');
+      resetBrowserState();
+      return createErrorResponse("Browser session not available. Please try again with a new action.");
+    }
 
     try {
-      return await operation(context.page!);
+      // Verify browser and page are in a good state
+      if (!context.browser.isConnected || context.page.isClosed()) {
+        const { resetBrowserState } = await import('../../toolHandler.js');
+        resetBrowserState();
+        return createErrorResponse("Browser session has been closed. Please try again with a new action.");
+      }
+
+      // Execute the operation if everything looks good
+      return await operation(context.page);
     } catch (error) {
-      return createErrorResponse(`Operation failed: ${(error as Error).message}`);
+      // Handle specific errors
+      const errorMessage = (error as Error).message;
+      
+      // Check for connection-related errors
+      if (
+        errorMessage.includes("Target page, context or browser has been closed") ||
+        errorMessage.includes("Protocol error") ||
+        errorMessage.includes("Connection closed") ||
+        errorMessage.includes("Browser has been closed")
+      ) {
+        const { resetBrowserState } = await import('../../toolHandler.js');
+        resetBrowserState();
+        return createErrorResponse("Browser connection was lost. Please try again with a new action.");
+      }
+      
+      // For other errors, just report them
+      return createErrorResponse(`Operation failed: ${errorMessage}`);
     }
   }
 } 
