@@ -251,6 +251,17 @@ exports[`Tool Definitions should match snapshot 1`] = `
     "description": "Perform an HTTP POST request",
     "inputSchema": {
       "properties": {
+        "headers": {
+          "additionalProperties": {
+            "type": "string",
+          },
+          "description": "Additional headers to include in the request",
+          "type": "object",
+        },
+        "token": {
+          "description": "Bearer token for authorization",
+          "type": "string",
+        },
         "url": {
           "description": "URL to perform POST operation",
           "type": "string",

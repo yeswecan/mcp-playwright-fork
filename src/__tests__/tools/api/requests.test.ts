@@ -102,7 +102,7 @@ describe('API Request Tools', () => {
   });
 
   describe('PostRequestTool', () => {
-    test('should make a POST request', async () => {
+    test('should make a POST request without token', async () => {
       const args = {
         url: 'https://api.example.com',
         value: '{"data": "test"}'
@@ -110,7 +110,56 @@ describe('API Request Tools', () => {
 
       const result = await postRequestTool.execute(args, mockContext);
 
-      expect(mockPost).toHaveBeenCalledWith('https://api.example.com', { data: args.value });
+      expect(mockPost).toHaveBeenCalledWith('https://api.example.com', { 
+        data: { data: "test" },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      expect(result.isError).toBe(false);
+      expect(result.content[0].text).toContain('POST request to');
+    });
+
+    test('should make a POST request with Bearer token', async () => {
+      const args = {
+        url: 'https://api.example.com',
+        value: '{"data": "test"}',
+        token: 'test-token'
+      };
+
+      const result = await postRequestTool.execute(args, mockContext);
+
+      expect(mockPost).toHaveBeenCalledWith('https://api.example.com', { 
+        data: { data: "test" },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer test-token'
+        }
+      });
+      expect(result.isError).toBe(false);
+      expect(result.content[0].text).toContain('POST request to');
+    });
+
+    test('should make a POST request with Bearer token and custom headers', async () => {
+      const args = {
+        url: 'https://api.example.com',
+        value: '{"data": "test"}',
+        token: 'test-token',
+        headers: {
+          'X-Custom-Header': 'custom-value'
+        }
+      };
+
+      const result = await postRequestTool.execute(args, mockContext);
+
+      expect(mockPost).toHaveBeenCalledWith('https://api.example.com', { 
+        data: { data: "test" },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer test-token',
+          'X-Custom-Header': 'custom-value'
+        }
+      });
       expect(result.isError).toBe(false);
       expect(result.content[0].text).toContain('POST request to');
     });

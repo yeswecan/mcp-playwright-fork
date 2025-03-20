@@ -159,6 +159,12 @@ export function createToolDefinitions() {
         properties: {
           url: { type: "string", description: "URL to perform POST operation" },
           value: { type: "string", description: "Data to post in the body" },
+          token: { type: "string", description: "Bearer token for authorization" },
+          headers: { 
+            type: "object", 
+            description: "Additional headers to include in the request",
+            additionalProperties: { type: "string" }
+          }
         },
         required: ["url", "value"],
       },

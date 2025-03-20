@@ -44,6 +44,10 @@ Perform a POST operation on any given API request.
     URL to perform the POST operation.  
   - **`value`** *(string)*:  
     Data to include in the body of the POST request.
+  - **`token`** *(string, optional)*:  
+    Bearer token for authorization. When provided, it will be sent as `Authorization: Bearer <token>` header.
+  - **`headers`** *(object, optional)*:  
+    Additional headers to include in the request. Note: Content-Type: application/json is set by default.
 
 - **Response:**
   - **`statusCode`** *(string)*:  
