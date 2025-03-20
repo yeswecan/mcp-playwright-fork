@@ -1,5 +1,6 @@
 import { BrowserToolBase } from './base.js';
-import { ToolContext, ToolResponse, createSuccessResponse } from '../common/types.js';
+import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse } from '../common/types.js';
+import { resetBrowserState } from '../../toolHandler.js';
 
 /**
  * Tool for navigating to URLs
@@ -9,13 +10,49 @@ export class NavigationTool extends BrowserToolBase {
    * Execute the navigation tool
    */
   async execute(args: any, context: ToolContext): Promise<ToolResponse> {
+    // Check if browser is available
+    if (!context.browser || !context.browser.isConnected()) {
+      // If browser is not connected, we need to reset the state to force recreation
+      resetBrowserState();
+      return createErrorResponse(
+        "Browser is not connected. The connection has been reset - please retry your navigation."
+      );
+    }
+
+    // Check if page is available and not closed
+    if (!context.page || context.page.isClosed()) {
+      return createErrorResponse(
+        "Page is not available or has been closed. Please retry your navigation."
+      );
+    }
+
     return this.safeExecute(context, async (page) => {
-      await page.goto(args.url, {
-        timeout: args.timeout || 30000,
-        waitUntil: args.waitUntil || "load"
-      });
-      
-      return createSuccessResponse(`Navigated to ${args.url}`);
+      try {
+        await page.goto(args.url, {
+          timeout: args.timeout || 30000,
+          waitUntil: args.waitUntil || "load"
+        });
+        
+        return createSuccessResponse(`Navigated to ${args.url}`);
+      } catch (error) {
+        const errorMessage = (error as Error).message;
+        
+        // Check for common disconnection errors
+        if (
+          errorMessage.includes("Target page, context or browser has been closed") ||
+          errorMessage.includes("Target closed") ||
+          errorMessage.includes("Browser has been disconnected")
+        ) {
+          // Reset browser state to force recreation on next attempt
+          resetBrowserState();
+          return createErrorResponse(
+            `Browser connection issue: ${errorMessage}. Connection has been reset - please retry your navigation.`
+          );
+        }
+        
+        // For other errors, return the standard error
+        throw error;
+      }
     });
   }
 }
@@ -29,7 +66,23 @@ export class CloseBrowserTool extends BrowserToolBase {
    */
   async execute(args: any, context: ToolContext): Promise<ToolResponse> {
     if (context.browser) {
-      await context.browser.close();
+      try {
+        // Check if browser is still connected
+        if (context.browser.isConnected()) {
+          await context.browser.close().catch(error => {
+            console.error("Error while closing browser:", error);
+          });
+        } else {
+          console.log("Browser already disconnected, cleaning up state");
+        }
+      } catch (error) {
+        console.error("Error during browser close operation:", error);
+        // Continue with resetting state even if close fails
+      } finally {
+        // Always reset the global browser and page references
+        resetBrowserState();
+      }
+      
       return createSuccessResponse("Browser closed successfully");
     }
     

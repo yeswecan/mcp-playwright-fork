@@ -24,9 +24,26 @@ Playwright UI automation is supported for very limited feature sets, more featur
 
 
 ### Playwright_navigate
-Navigate to any URL in the browser
-- **`Input`** url (string):
-URL of the application under test
+
+Navigate to a URL in the browser with configurable viewport and browser settings
+
+- **`url`** *(string, required)*:  
+  URL of the application under test.
+
+- **`width`** *(number, optional, default: 1280)*:  
+  Viewport width in pixels.
+
+- **`height`** *(number, optional, default: 720)*:  
+  Viewport height in pixels.
+
+- **`timeout`** *(number, optional)*:  
+  Navigation timeout in milliseconds.
+
+- **`waitUntil`** *(string, optional)*:  
+  Navigation wait condition.
+
+- **`headless`** *(boolean, optional, default: false)*:  
+  Run browser in headless mode.
 
 ---
 

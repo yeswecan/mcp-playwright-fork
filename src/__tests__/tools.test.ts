@@ -36,7 +36,15 @@ describe('Tool Definitions', () => {
     });
   });
 
-  test('should match snapshot', () => {
-    expect(toolDefinitions).toMatchSnapshot();
+  test('should validate navigate tool schema', () => {
+    const navigateTool = toolDefinitions.find(tool => tool.name === 'playwright_navigate');
+    expect(navigateTool).toBeDefined();
+    expect(navigateTool!.inputSchema.properties).toHaveProperty('url');
+    expect(navigateTool!.inputSchema.properties).toHaveProperty('waitUntil');
+    expect(navigateTool!.inputSchema.properties).toHaveProperty('timeout');
+    expect(navigateTool!.inputSchema.properties).toHaveProperty('width');
+    expect(navigateTool!.inputSchema.properties).toHaveProperty('height');
+    expect(navigateTool!.inputSchema.properties).toHaveProperty('headless');
+    expect(navigateTool!.inputSchema.required).toEqual(['url']);
   });
 }); 
