@@ -74,12 +74,86 @@ interface BrowserSettings {
  * Ensures a browser is launched and returns the page
  */
 async function ensureBrowser(browserSettings?: BrowserSettings) {
-  if (!browser) {
+  try {
+    // Check if browser exists but is disconnected
+    if (browser && !browser.isConnected()) {
+      console.log("Browser exists but is disconnected. Cleaning up...");
+      try {
+        await browser.close().catch(err => console.log("Error closing disconnected browser:", err));
+      } catch (e) {
+        // Ignore errors when closing disconnected browser
+      }
+      // Reset browser and page references
+      resetBrowserState();
+    }
+
+    // Launch new browser if needed
+    if (!browser) {
+      const { viewport, userAgent, headless = false } = browserSettings ?? {};
+      console.log("Launching new browser instance...");
+      browser = await chromium.launch({ headless });
+
+      // Add cleanup logic when browser is disconnected
+      browser.on('disconnected', () => {
+        console.log("Browser disconnected event triggered");
+        browser = undefined;
+        page = undefined;
+      });
+
+      const context = await browser.newContext({
+        ...userAgent && { userAgent },
+        viewport: {
+          width: viewport?.width ?? 1280,
+          height: viewport?.height ?? 720,
+        },
+        deviceScaleFactor: 1,
+      });
+
+      page = await context.newPage();
+
+      // Register console message handler
+      page.on("console", (msg) => {
+        if (consoleLogsTool) {
+          consoleLogsTool.registerConsoleMessage(msg.type(), msg.text());
+        }
+      });
+    }
+    
+    // Verify page is still valid
+    if (!page || page.isClosed()) {
+      console.log("Page is closed or invalid. Creating new page...");
+      // Create a new page if the current one is invalid
+      const context = browser.contexts()[0] || await browser.newContext();
+      page = await context.newPage();
+      
+      // Re-register console message handler
+      page.on("console", (msg) => {
+        if (consoleLogsTool) {
+          consoleLogsTool.registerConsoleMessage(msg.type(), msg.text());
+        }
+      });
+    }
+    
+    return page!;
+  } catch (error) {
+    console.error("Error ensuring browser:", error);
+    // If something went wrong, clean up completely and retry once
+    try {
+      if (browser) {
+        await browser.close().catch(() => {});
+      }
+    } catch (e) {
+      // Ignore errors during cleanup
+    }
+    
+    resetBrowserState();
+    
+    // Try one more time from scratch
     const { viewport, userAgent, headless = false } = browserSettings ?? {};
     browser = await chromium.launch({ headless });
-
-    // Add cleanup logic when browser is disconnected
+    
     browser.on('disconnected', () => {
+      console.log("Browser disconnected event triggered (retry)");
       browser = undefined;
       page = undefined;
     });
@@ -94,15 +168,15 @@ async function ensureBrowser(browserSettings?: BrowserSettings) {
     });
 
     page = await context.newPage();
-
-    // Register console message handler
+    
     page.on("console", (msg) => {
       if (consoleLogsTool) {
         consoleLogsTool.registerConsoleMessage(msg.type(), msg.text());
       }
     });
+    
+    return page!;
   }
-  return page!;
 }
 
 /**
@@ -152,6 +226,46 @@ export async function handleToolCall(
   // Initialize tools
   initializeTools(server);
 
+  // Special case for browser close to ensure it always works
+  if (name === "playwright_close") {
+    if (browser) {
+      try {
+        if (browser.isConnected()) {
+          await browser.close().catch(e => console.error("Error closing browser:", e));
+        }
+      } catch (error) {
+        console.error("Error during browser close in handler:", error);
+      } finally {
+        resetBrowserState();
+      }
+      return {
+        content: [{
+          type: "text",
+          text: "Browser closed successfully",
+        }],
+        isError: false,
+      };
+    }
+    return {
+      content: [{
+        type: "text",
+        text: "No browser instance to close",
+      }],
+      isError: false,
+    };
+  }
+
+  // Check if we have a disconnected browser that needs cleanup
+  if (browser && !browser.isConnected() && BROWSER_TOOLS.includes(name)) {
+    console.log("Detected disconnected browser before tool execution, cleaning up...");
+    try {
+      await browser.close().catch(() => {}); // Ignore errors
+    } catch (e) {
+      // Ignore any errors during cleanup
+    }
+    resetBrowserState();
+  }
+
   // Prepare context based on tool requirements
   const context: ToolContext = {
     server
@@ -167,81 +281,135 @@ export async function handleToolCall(
       userAgent: name === "playwright_custom_user_agent" ? args.userAgent : undefined,
       headless: args.headless
     };
-    context.page = await ensureBrowser(browserSettings);
-    context.browser = browser;
+    
+    try {
+      context.page = await ensureBrowser(browserSettings);
+      context.browser = browser;
+    } catch (error) {
+      console.error("Failed to ensure browser:", error);
+      return {
+        content: [{
+          type: "text",
+          text: `Failed to initialize browser: ${(error as Error).message}. Please try again.`,
+        }],
+        isError: true,
+      };
+    }
   }
 
   // Set up API context if needed
   if (API_TOOLS.includes(name)) {
-    context.apiContext = await ensureApiContext(args.url);
-  }
-
-  // Route to appropriate tool
-  switch (name) {
-    // Browser tools
-    case "playwright_navigate":
-      return await navigationTool.execute(args, context);
-      
-    case "playwright_screenshot":
-      return await screenshotTool.execute(args, context);
-      
-    case "playwright_close":
-      return await closeBrowserTool.execute(args, context);
-      
-    case "playwright_console_logs":
-      return await consoleLogsTool.execute(args, context);
-      
-    case "playwright_click":
-      return await clickTool.execute(args, context);
-      
-    case "playwright_iframe_click":
-      return await iframeClickTool.execute(args, context);
-      
-    case "playwright_fill":
-      return await fillTool.execute(args, context);
-      
-    case "playwright_select":
-      return await selectTool.execute(args, context);
-      
-    case "playwright_hover":
-      return await hoverTool.execute(args, context);
-      
-    case "playwright_evaluate":
-      return await evaluateTool.execute(args, context);
-
-    case "playwright_expect_response":
-      return await expectResponseTool.execute(args, context);
-
-    case "playwright_assert_response":
-      return await assertResponseTool.execute(args, context);
-
-    case "playwright_custom_user_agent":
-      return await customUserAgentTool.execute(args, context);
-      
-    // API tools
-    case "playwright_get":
-      return await getRequestTool.execute(args, context);
-      
-    case "playwright_post":
-      return await postRequestTool.execute(args, context);
-      
-    case "playwright_put":
-      return await putRequestTool.execute(args, context);
-      
-    case "playwright_patch":
-      return await patchRequestTool.execute(args, context);
-      
-    case "playwright_delete":
-      return await deleteRequestTool.execute(args, context);
-    
-    default:
+    try {
+      context.apiContext = await ensureApiContext(args.url);
+    } catch (error) {
       return {
         content: [{
           type: "text",
-          text: `Unknown tool: ${name}`,
+          text: `Failed to initialize API context: ${(error as Error).message}`,
         }],
         isError: true,
       };
+    }
+  }
+
+  // Route to appropriate tool
+  try {
+    switch (name) {
+      // Browser tools
+      case "playwright_navigate":
+        return await navigationTool.execute(args, context);
+        
+      case "playwright_screenshot":
+        return await screenshotTool.execute(args, context);
+        
+      case "playwright_close":
+        return await closeBrowserTool.execute(args, context);
+        
+      case "playwright_console_logs":
+        return await consoleLogsTool.execute(args, context);
+        
+      case "playwright_click":
+        return await clickTool.execute(args, context);
+        
+      case "playwright_iframe_click":
+        return await iframeClickTool.execute(args, context);
+        
+      case "playwright_fill":
+        return await fillTool.execute(args, context);
+        
+      case "playwright_select":
+        return await selectTool.execute(args, context);
+        
+      case "playwright_hover":
+        return await hoverTool.execute(args, context);
+        
+      case "playwright_evaluate":
+        return await evaluateTool.execute(args, context);
+
+      case "playwright_expect_response":
+        return await expectResponseTool.execute(args, context);
+
+      case "playwright_assert_response":
+        return await assertResponseTool.execute(args, context);
+
+      case "playwright_custom_user_agent":
+        return await customUserAgentTool.execute(args, context);
+        
+      // API tools
+      case "playwright_get":
+        return await getRequestTool.execute(args, context);
+        
+      case "playwright_post":
+        return await postRequestTool.execute(args, context);
+        
+      case "playwright_put":
+        return await putRequestTool.execute(args, context);
+        
+      case "playwright_patch":
+        return await patchRequestTool.execute(args, context);
+        
+      case "playwright_delete":
+        return await deleteRequestTool.execute(args, context);
+      
+      default:
+        return {
+          content: [{
+            type: "text",
+            text: `Unknown tool: ${name}`,
+          }],
+          isError: true,
+        };
+    }
+  } catch (error) {
+    console.error(`Error executing tool ${name}:`, error);
+    
+    // Check if it's a browser connection error
+    const errorMessage = (error as Error).message;
+    if (
+      BROWSER_TOOLS.includes(name) && 
+      (errorMessage.includes("Target page, context or browser has been closed") || 
+      errorMessage.includes("Browser has been disconnected") ||
+      errorMessage.includes("Target closed") ||
+      errorMessage.includes("Protocol error"))
+    ) {
+      // Reset browser state if it's a connection issue
+      resetBrowserState();
+      return {
+        content: [{
+          type: "text",
+          text: `Browser connection error: ${errorMessage}. Browser state has been reset, please try again.`,
+        }],
+        isError: true,
+      };
+    }
+    
+    return {
+      content: [{
+        type: "text",
+        text: `Tool execution error: ${errorMessage}`,
+      }],
+      isError: true,
+    };
   }
 }
 

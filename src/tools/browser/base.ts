@@ -55,9 +55,38 @@ export abstract class BrowserToolBase implements ToolHandler {
     if (pageError) return pageError;
 
     try {
+      // Verify browser is connected before proceeding
+      if (context.browser && !context.browser.isConnected()) {
+        // If browser exists but is disconnected, reset state
+        const { resetBrowserState } = await import('../../toolHandler.js');
+        resetBrowserState();
+        return createErrorResponse("Browser is disconnected. Please retry the operation.");
+      }
+
+      // Check if page is closed
+      if (context.page.isClosed()) {
+        return createErrorResponse("Page is closed. Please retry the operation.");
+      }
+
       return await operation(context.page!);
     } catch (error) {
-      return createErrorResponse(`Operation failed: ${(error as Error).message}`);
+      const errorMessage = (error as Error).message;
+      
+      // Check for common browser disconnection errors
+      if (
+        errorMessage.includes("Target page, context or browser has been closed") ||
+        errorMessage.includes("Target closed") ||
+        errorMessage.includes("Browser has been disconnected") ||
+        errorMessage.includes("Protocol error") ||
+        errorMessage.includes("Connection closed")
+      ) {
+        // Reset browser state on connection issues
+        const { resetBrowserState } = await import('../../toolHandler.js');
+        resetBrowserState();
+        return createErrorResponse(`Browser connection error: ${errorMessage}. Connection has been reset - please retry the operation.`);
+      }
+      
+      return createErrorResponse(`Operation failed: ${errorMessage}`);
     }
   }
 } 
