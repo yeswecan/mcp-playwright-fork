@@ -1,7 +1,7 @@
 import { ClickTool, FillTool, SelectTool, HoverTool, EvaluateTool, IframeClickTool } from '../../../tools/browser/interaction.js';
 import { NavigationTool } from '../../../tools/browser/navigation.js';
 import { ToolContext } from '../../../tools/common/types.js';
-import { Page } from 'playwright';
+import { Page, Browser } from 'playwright';
 import { jest } from '@jest/globals';
 
 // Mock page functions
@@ -40,6 +40,7 @@ const mockEvaluate = jest.fn().mockImplementation(() => Promise.resolve('test-re
 
 // Mock the Page object with proper typing
 const mockGoto = jest.fn().mockImplementation(() => Promise.resolve());
+const mockIsClosed = jest.fn().mockReturnValue(false);
 
 const mockPage = {
   click: mockPageClick,
@@ -50,8 +51,15 @@ const mockPage = {
   locator: mockLocator,
   frameLocator: mockFrameLocator,
   evaluate: mockEvaluate,
-  goto: mockGoto
+  goto: mockGoto,
+  isClosed: mockIsClosed
 } as unknown as Page;
+
+// Mock the browser
+const mockIsConnected = jest.fn().mockReturnValue(true);
+const mockBrowser = {
+  isConnected: mockIsConnected
+} as unknown as Browser;
 
 // Mock the server
 const mockServer = {
@@ -61,6 +69,7 @@ const mockServer = {
 // Mock context
 const mockContext = {
   page: mockPage,
+  browser: mockBrowser,
   server: mockServer
 } as ToolContext;
 
@@ -209,6 +218,9 @@ describe('NavigationTool', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     navigationTool = new NavigationTool(mockServer);
+    // Reset browser and page mocks
+    mockIsConnected.mockReturnValue(true);
+    mockIsClosed.mockReturnValue(false);
   });
 
   test('should navigate to a URL', async () => {
@@ -244,10 +256,46 @@ describe('NavigationTool', () => {
       url: 'https://example.com'
     };
 
-    const result = await navigationTool.execute(args, { server: mockServer } as ToolContext);
+    // Create context with no page but with browser
+    const contextWithoutPage = { 
+      server: mockServer,
+      browser: mockBrowser
+    } as unknown as ToolContext;
+
+    const result = await navigationTool.execute(args, contextWithoutPage);
 
     expect(mockGoto).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('Browser page not initialized');
+    expect(result.content[0].text).toContain('Page is not available');
+  });
+  
+  test('should handle disconnected browser', async () => {
+    const args = {
+      url: 'https://example.com'
+    };
+    
+    // Mock disconnected browser
+    mockIsConnected.mockReturnValueOnce(false);
+    
+    const result = await navigationTool.execute(args, mockContext);
+    
+    expect(mockGoto).not.toHaveBeenCalled();
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain('Browser is not connected');
+  });
+  
+  test('should handle closed page', async () => {
+    const args = {
+      url: 'https://example.com'
+    };
+    
+    // Mock closed page
+    mockIsClosed.mockReturnValueOnce(true);
+    
+    const result = await navigationTool.execute(args, mockContext);
+    
+    expect(mockGoto).not.toHaveBeenCalled();
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain('Page is not available or has been closed');
   });
 });

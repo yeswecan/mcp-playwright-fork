@@ -1,23 +1,47 @@
 import { ScreenshotTool } from '../../../tools/browser/screenshot.js';
 import { ToolContext } from '../../../tools/common/types.js';
-import { Page } from 'playwright';
+import { Page, Browser } from 'playwright';
 import { jest } from '@jest/globals';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Mock fs module
+jest.mock('node:fs', () => ({
+  existsSync: jest.fn().mockReturnValue(true),
+  mkdirSync: jest.fn(),
+  writeFileSync: jest.fn()
+}));
 
 // Mock the Page object
-const mockScreenshot = jest.fn();
-mockScreenshot.mockImplementation(() => Promise.resolve(Buffer.from('mock-screenshot')));
+const mockScreenshot = jest.fn().mockImplementation(() => 
+  Promise.resolve(Buffer.from('mock-screenshot')));
 
-const mockLocatorScreenshot = jest.fn();
-mockLocatorScreenshot.mockImplementation(() => Promise.resolve(Buffer.from('mock-screenshot')));
+const mockLocatorScreenshot = jest.fn().mockImplementation(() => 
+  Promise.resolve(Buffer.from('mock-element-screenshot')));
+
+const mockElementHandle = {
+  screenshot: mockLocatorScreenshot
+};
+
+const mockElement = jest.fn().mockImplementation(() => Promise.resolve(mockElementHandle));
 
 const mockLocator = jest.fn().mockReturnValue({
   screenshot: mockLocatorScreenshot
 });
 
+const mockIsClosed = jest.fn().mockReturnValue(false);
 const mockPage = {
   screenshot: mockScreenshot,
-  locator: mockLocator
+  locator: mockLocator,
+  $: mockElement,
+  isClosed: mockIsClosed
 } as unknown as Page;
+
+// Mock browser
+const mockIsConnected = jest.fn().mockReturnValue(true);
+const mockBrowser = {
+  isConnected: mockIsConnected
+} as unknown as Browser;
 
 // Mock the server
 const mockServer = {
@@ -28,6 +52,7 @@ const mockServer = {
 // Mock context
 const mockContext = {
   page: mockPage,
+  browser: mockBrowser,
   server: mockServer
 } as ToolContext;
 
@@ -38,8 +63,9 @@ describe('ScreenshotTool', () => {
     jest.clearAllMocks();
     screenshotTool = new ScreenshotTool(mockServer);
     
-    // Mock Date.now() to return a consistent value for testing
-    jest.spyOn(Date, 'now').mockImplementation(() => 1234567890);
+    // Mock Date to return a consistent value for testing
+    jest.spyOn(global.Date.prototype, 'toISOString').mockReturnValue('2023-01-01T12:00:00.000Z');
+    (fs.existsSync as jest.Mock).mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -52,34 +78,38 @@ describe('ScreenshotTool', () => {
       fullPage: true
     };
 
-    // Mock the implementation to return success
-    mockScreenshot.mockImplementationOnce(() => Promise.resolve(Buffer.from('mock-screenshot')));
+    // Return a buffer for the screenshot
+    const screenshotBuffer = Buffer.from('mock-screenshot');
+    mockScreenshot.mockImplementationOnce(() => Promise.resolve(screenshotBuffer));
 
     const result = await screenshotTool.execute(args, mockContext);
 
-    // The actual implementation adds path and type to the options
+    // Check if screenshot was called with correct options
     expect(mockScreenshot).toHaveBeenCalledWith(expect.objectContaining({ 
       fullPage: true,
       type: 'png'
     }));
     
-    // The actual implementation returns a message about the screenshot being saved
+    // Check that the result contains success message
+    expect(result.isError).toBe(false);
     expect(result.content[0].text).toContain('Screenshot saved to');
   });
 
-  test('should handle element screenshot errors gracefully', async () => {
+  test('should handle element screenshot', async () => {
     const args = {
       name: 'test-element-screenshot',
       selector: '#test-element'
     };
 
-    // The actual implementation might use a different approach to handle element screenshots
-    // We'll just test that the function completes without throwing an exception
+    // Return a buffer for the screenshot
+    const screenshotBuffer = Buffer.from('mock-element-screenshot');
+    mockLocatorScreenshot.mockImplementationOnce(() => Promise.resolve(screenshotBuffer));
+
     const result = await screenshotTool.execute(args, mockContext);
 
-    // The result might be an error or success, but it should have content
-    expect(result.content).toBeDefined();
-    expect(result.content.length).toBeGreaterThan(0);
+    // Check that the result contains success message
+    expect(result.isError).toBe(false);
+    expect(result.content[0].text).toContain('Screenshot saved to');
   });
 
   test('should handle screenshot errors', async () => {
@@ -102,7 +132,13 @@ describe('ScreenshotTool', () => {
       name: 'test-screenshot'
     };
 
-    const result = await screenshotTool.execute(args, { server: mockServer } as ToolContext);
+    // Context without page but with browser
+    const contextWithoutPage = {
+      browser: mockBrowser,
+      server: mockServer
+    } as unknown as ToolContext;
+
+    const result = await screenshotTool.execute(args, contextWithoutPage);
 
     expect(mockScreenshot).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
@@ -115,8 +151,13 @@ describe('ScreenshotTool', () => {
       storeBase64: true
     };
 
+    // Return a buffer for the screenshot
+    const screenshotBuffer = Buffer.from('mock-screenshot');
+    mockScreenshot.mockImplementationOnce(() => Promise.resolve(screenshotBuffer));
+
     await screenshotTool.execute(args, mockContext);
     
+    // Check that the screenshot was stored in the map
     const screenshots = screenshotTool.getScreenshots();
     expect(screenshots.has('test-screenshot')).toBe(true);
   });

@@ -6,6 +6,10 @@ exports[`Tool Definitions should match snapshot 1`] = `
     "description": "Navigate to a URL",
     "inputSchema": {
       "properties": {
+        "headless": {
+          "description": "Run browser in headless mode (default: false)",
+          "type": "boolean",
+        },
         "height": {
           "description": "Viewport height in pixels (default: 720)",
           "type": "number",

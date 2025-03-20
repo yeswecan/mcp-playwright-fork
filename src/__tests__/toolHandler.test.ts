@@ -13,6 +13,7 @@ jest.mock('playwright', () => {
   const mockHover = jest.fn().mockImplementation(() => Promise.resolve());
   const mockEvaluate = jest.fn().mockImplementation(() => Promise.resolve());
   const mockOn = jest.fn();
+  const mockIsClosed = jest.fn().mockReturnValue(false);
   
   // Mock iframe click
   const mockIframeClick = jest.fn().mockImplementation(() => Promise.resolve());
@@ -47,20 +48,27 @@ jest.mock('playwright', () => {
     evaluate: mockEvaluate,
     on: mockOn,
     frames: mockFrames,
-    locator: mockLocator
+    locator: mockLocator,
+    isClosed: mockIsClosed
   };
 
   const mockNewPage = jest.fn().mockImplementation(() => Promise.resolve(mockPage));
+  const mockContexts = jest.fn().mockReturnValue([]);
   const mockContext = {
     newPage: mockNewPage
   };
 
   const mockNewContext = jest.fn().mockImplementation(() => Promise.resolve(mockContext));
   const mockClose = jest.fn().mockImplementation(() => Promise.resolve());
+  const mockBrowserOn = jest.fn();
+  const mockIsConnected = jest.fn().mockReturnValue(true);
   
   const mockBrowser = {
     newContext: mockNewContext,
-    close: mockClose
+    close: mockClose,
+    on: mockBrowserOn,
+    isConnected: mockIsConnected,
+    contexts: mockContexts
   };
 
   // Mock API responses
