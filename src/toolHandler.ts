@@ -32,6 +32,15 @@ import {
 let browser: Browser | undefined;
 let page: Page | undefined;
 
+/**
+ * Resets browser and page variables
+ * Used when browser is closed
+ */
+export function resetBrowserState() {
+  browser = undefined;
+  page = undefined;
+}
+
 // Tool instances
 let screenshotTool: ScreenshotTool;
 let navigationTool: NavigationTool;
@@ -58,6 +67,7 @@ interface BrowserSettings {
     height?: number;
   };
   userAgent?: string;
+  headless?: boolean;
 }
 
 /**
@@ -65,8 +75,15 @@ interface BrowserSettings {
  */
 async function ensureBrowser(browserSettings?: BrowserSettings) {
   if (!browser) {
-    const { viewport, userAgent } = browserSettings ?? {};
-    browser = await chromium.launch({ headless: false });
+    const { viewport, userAgent, headless = false } = browserSettings ?? {};
+    browser = await chromium.launch({ headless });
+
+    // Add cleanup logic when browser is disconnected
+    browser.on('disconnected', () => {
+      browser = undefined;
+      page = undefined;
+    });
+
     const context = await browser.newContext({
       ...userAgent && { userAgent },
       viewport: {
@@ -147,7 +164,8 @@ export async function handleToolCall(
         width: args.width,
         height: args.height
       },
-      userAgent: name === "playwright_custom_user_agent" ? args.userAgent : undefined
+      userAgent: name === "playwright_custom_user_agent" ? args.userAgent : undefined,
+      headless: args.headless
     };
     context.page = await ensureBrowser(browserSettings);
     context.browser = browser;

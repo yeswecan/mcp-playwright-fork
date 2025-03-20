@@ -1,5 +1,6 @@
 import { BrowserToolBase } from './base.js';
 import { ToolContext, ToolResponse, createSuccessResponse } from '../common/types.js';
+import { resetBrowserState } from '../../toolHandler.js';
 
 /**
  * Tool for navigating to URLs
@@ -30,6 +31,10 @@ export class CloseBrowserTool extends BrowserToolBase {
   async execute(args: any, context: ToolContext): Promise<ToolResponse> {
     if (context.browser) {
       await context.browser.close();
+      
+      // Reset the global browser and page references
+      resetBrowserState();
+      
       return createSuccessResponse("Browser closed successfully");
     }
     

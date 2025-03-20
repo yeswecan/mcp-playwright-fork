@@ -12,7 +12,8 @@ export function createToolDefinitions() {
           width: { type: "number", description: "Viewport width in pixels (default: 1280)" },
           height: { type: "number", description: "Viewport height in pixels (default: 720)" },
           timeout: { type: "number", description: "Navigation timeout in milliseconds" },
-          waitUntil: { type: "string", description: "Navigation wait condition" }
+          waitUntil: { type: "string", description: "Navigation wait condition" },
+          headless: { type: "boolean", description: "Run browser in headless mode (default: false)" }
         },
         required: ["url"],
       },
