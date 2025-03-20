@@ -55,34 +55,9 @@ export abstract class BrowserToolBase implements ToolHandler {
     if (pageError) return pageError;
 
     try {
-      // Check if browser is still connected
-      if (!context.browser || !context.page) {
-        // Browser or page reference is missing
-        return createErrorResponse("Browser or page is not available");
-      }
-
-      // Check if browser is still connected
-      if (context.browser.isConnected && !context.page.isClosed()) {
-        return await operation(context.page);
-      } else {
-        // The browser or page has been closed
-        return createErrorResponse("Browser or page has been closed");
-      }
+      return await operation(context.page!);
     } catch (error) {
-      // Handle specific browser/page closed errors
-      const errorMessage = (error as Error).message;
-      if (
-        errorMessage.includes("Target page, context or browser has been closed") ||
-        errorMessage.includes("Protocol error") ||
-        errorMessage.includes("Connection closed")
-      ) {
-        // Reset browser state if connection errors occur
-        const { resetBrowserState } = await import('../../toolHandler.js');
-        resetBrowserState();
-        return createErrorResponse("Browser connection has been lost, please try again");
-      }
-      
-      return createErrorResponse(`Operation failed: ${errorMessage}`);
+      return createErrorResponse(`Operation failed: ${(error as Error).message}`);
     }
   }
 } 

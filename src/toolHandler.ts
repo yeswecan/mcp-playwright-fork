@@ -37,21 +37,8 @@ let page: Page | undefined;
  * Used when browser is closed
  */
 export function resetBrowserState() {
-  try {
-    // Try to close the browser if it's still connected but not properly closed
-    if (browser && browser.isConnected) {
-      // Use a non-blocking approach to avoid hanging if there's an issue
-      browser.close().catch(() => {
-        // Ignore errors during cleanup
-      });
-    }
-  } catch (e) {
-    // Ignore any errors during cleanup
-  } finally {
-    // Always reset the references
-    browser = undefined;
-    page = undefined;
-  }
+  browser = undefined;
+  page = undefined;
 }
 
 // Tool instances
