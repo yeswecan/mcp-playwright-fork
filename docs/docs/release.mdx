@@ -5,6 +5,28 @@ import YouTubeVideoEmbed from '@site/src/components/HomepageFeatures/YouTubeVide
 
 # Release Notes
 
+## Version 1.0.0
+- First major release of Playwright MCP Server with the tool structure changes 🚀
+- Fixed issue with headless mode in Playwright #62
+- Fixed issue Navigation failed: page.goto: Target page, context or browser has been closed #63
+- Completed RFC: Refactor handleToolCall for better maintainability #46
+- New feature: Optional Bearer Authorization to API POST (Thanks to ***@CopilotMe***)
+- Fixed issue Exit process on host close (Thanks to ***@kiracih***)
+- New Feature: Three new tools (Thanks to ***@VinceOPS***)
+  - `playwright_except_response`
+  - `playwright_assert_response`
+  
+  Here is the scenario for the above two tools
+  ```BDD
+    Scenario: Logging in requires captcha verification
+      Given I expect the browser to receive an HTTP response from "**/security/captcha-precheck"
+      When I enter "some-identifier@test.com" in the input and I submit
+      Then The browser should have received the HTTP response
+      And Its body should contain a property "captchaFamily"
+  ```
+  - A new tool `playwright_custom_user_agent` to define a custom user agent.
+
+
 ## Version 0.3.1
 - Fixed BROWSER_TOOLS as Playwright_console_logs is not required (Thanks to https://github.com/kfern)
 - Added Tests for all the Playwright MCP Server tools (Thanks to https://github.com/kfern)
