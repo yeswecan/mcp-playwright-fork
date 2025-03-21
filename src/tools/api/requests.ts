@@ -48,7 +48,12 @@ export class PostRequestTool extends ApiToolBase {
       }
       
       const response = await apiContext.post(args.url, {
-        data: args.value
+        data: typeof args.value === 'string' ? JSON.parse(args.value) : args.value,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(args.token ? { 'Authorization': `Bearer ${args.token}` } : {}),
+          ...(args.headers || {})
+        }
       });
       
       let responseText;
