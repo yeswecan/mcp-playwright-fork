@@ -5,6 +5,15 @@ import YouTubeVideoEmbed from '@site/src/components/HomepageFeatures/YouTubeVide
 
 # Release Notes
 
+## Version 1.0.2
+- **Multi-Browser Support**: Added support for Firefox and WebKit browsers in addition to Chromium 🌐
+  - New `browserType` parameter for `playwright_navigate` tool allows specifying browser engine 
+  - Supported browser types: "chromium" (default), "firefox", and "webkit"
+  - Seamless browser engine switching during automation sessions
+  - Added comprehensive [documentation on browser types](/docs/playwright-web/Browser-Types)
+- Enhanced test coverage for different browser engines
+- Updated documentation with browser-specific examples
+
 ## Version 1.0.0
 - First major release of Playwright MCP Server with the tool structure changes 🚀
 - Fixed issue with headless mode in Playwright #62
