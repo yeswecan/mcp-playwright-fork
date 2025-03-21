@@ -77,9 +77,9 @@ async function ensureBrowser(browserSettings?: BrowserSettings) {
   try {
     // Check if browser exists but is disconnected
     if (browser && !browser.isConnected()) {
-      console.log("Browser exists but is disconnected. Cleaning up...");
+      console.error("Browser exists but is disconnected. Cleaning up...");
       try {
-        await browser.close().catch(err => console.log("Error closing disconnected browser:", err));
+        await browser.close().catch(err => console.error("Error closing disconnected browser:", err));
       } catch (e) {
         // Ignore errors when closing disconnected browser
       }
@@ -90,12 +90,12 @@ async function ensureBrowser(browserSettings?: BrowserSettings) {
     // Launch new browser if needed
     if (!browser) {
       const { viewport, userAgent, headless = false } = browserSettings ?? {};
-      console.log("Launching new browser instance...");
+      console.error("Launching new browser instance...");
       browser = await chromium.launch({ headless });
 
       // Add cleanup logic when browser is disconnected
       browser.on('disconnected', () => {
-        console.log("Browser disconnected event triggered");
+        console.error("Browser disconnected event triggered");
         browser = undefined;
         page = undefined;
       });
@@ -121,7 +121,7 @@ async function ensureBrowser(browserSettings?: BrowserSettings) {
     
     // Verify page is still valid
     if (!page || page.isClosed()) {
-      console.log("Page is closed or invalid. Creating new page...");
+      console.error("Page is closed or invalid. Creating new page...");
       // Create a new page if the current one is invalid
       const context = browser.contexts()[0] || await browser.newContext();
       page = await context.newPage();
@@ -153,7 +153,7 @@ async function ensureBrowser(browserSettings?: BrowserSettings) {
     browser = await chromium.launch({ headless });
     
     browser.on('disconnected', () => {
-      console.log("Browser disconnected event triggered (retry)");
+      console.error("Browser disconnected event triggered (retry)");
       browser = undefined;
       page = undefined;
     });
@@ -257,7 +257,7 @@ export async function handleToolCall(
 
   // Check if we have a disconnected browser that needs cleanup
   if (browser && !browser.isConnected() && BROWSER_TOOLS.includes(name)) {
-    console.log("Detected disconnected browser before tool execution, cleaning up...");
+    console.error("Detected disconnected browser before tool execution, cleaning up...");
     try {
       await browser.close().catch(() => {}); // Ignore errors
     } catch (e) {

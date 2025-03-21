@@ -73,7 +73,7 @@ export class CloseBrowserTool extends BrowserToolBase {
             console.error("Error while closing browser:", error);
           });
         } else {
-          console.log("Browser already disconnected, cleaning up state");
+          console.error("Browser already disconnected, cleaning up state");
         }
       } catch (error) {
         console.error("Error during browser close operation:", error);
