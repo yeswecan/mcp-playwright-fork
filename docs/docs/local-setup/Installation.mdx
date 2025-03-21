@@ -35,12 +35,18 @@ Modify your `claude-desktop-config.json` file as shown below to work with local 
         "--directory",
         "/your-playwright-mcp-server-clone-directory",
         "run",
-        "@modelcontextprotocol/playwright-mcp-server"
+        "@executeautomation/playwright-mcp-server"
       ]
     }
   }
 }
 ```
+
+:::warning Important  
+After modifying the `claude-desktop-config.json` file, you **must** completely close Claude Desktop and **manually terminate** any running processes from **Task Manager** (Windows 10/11).  
+
+⚠️ If you skip this step, the configuration changes **may not take effect**.  
+:::
 
 ## Reward
 If your setup is all correct, you should see Playwright MCP Server pointing your local machine source code
