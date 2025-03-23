@@ -16,11 +16,11 @@ export function createToolDefinitions() {
             properties: {
               outputPath: { 
                 type: "string", 
-                description: "Directory path where generated tests will be saved" 
+                description: "Directory path where generated tests will be saved (use absolute path)" 
               },
               testNamePrefix: { 
                 type: "string", 
-                description: "Prefix to use for generated test names" 
+                description: "Prefix to use for generated test names (default: 'GeneratedTest')" 
               },
               includeComments: { 
                 type: "boolean", 
@@ -82,7 +82,7 @@ export function createToolDefinitions() {
         type: "object",
         properties: {
           url: { type: "string", description: "URL to navigate to the website specified" },
-          width: { type: "number", description: "Viewport width in pixels " },
+          width: { type: "number", description: "Viewport width in pixels (default: 1280)" },
           height: { type: "number", description: "Viewport height in pixels (default: 720)" },
           timeout: { type: "number", description: "Navigation timeout in milliseconds" },
           waitUntil: { type: "string", description: "Navigation wait condition" },
