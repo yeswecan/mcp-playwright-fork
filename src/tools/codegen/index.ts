@@ -11,8 +11,13 @@ declare global {
   var page: Page | undefined;
 }
 
+// Helper function to get workspace root path
+const getWorkspaceRoot = () => {
+  return process.cwd();
+};
+
 const DEFAULT_OPTIONS: Required<CodegenOptions> = {
-  outputPath: 'tests/generated',
+  outputPath: path.join(getWorkspaceRoot(), 'e2e'),
   testNamePrefix: 'Test',
   includeComments: true
 };
@@ -36,11 +41,23 @@ export const startCodegenSession: Tool = {
   },
   handler: async ({ options = {} }: { options?: CodegenOptions }) => {
     try {
+      // Merge provided options with defaults
       const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
       
+      // Ensure output path is absolute and normalized
+      const workspaceRoot = getWorkspaceRoot();
+      const outputPath = path.isAbsolute(mergedOptions.outputPath) 
+        ? mergedOptions.outputPath 
+        : path.join(workspaceRoot, mergedOptions.outputPath);
+      
+      mergedOptions.outputPath = outputPath;
+      
       // Ensure output directory exists
-      const outputDir = path.resolve(mergedOptions.outputPath);
-      await fs.mkdir(outputDir, { recursive: true });
+      try {
+        await fs.mkdir(outputPath, { recursive: true });
+      } catch (mkdirError: any) {
+        throw new Error(`Failed to create output directory: ${mkdirError.message}`);
+      }
       
       const sessionId = ActionRecorder.getInstance().startSession();
       
@@ -54,7 +71,7 @@ export const startCodegenSession: Tool = {
       return { 
         sessionId,
         options: mergedOptions,
-        message: `Started codegen session. Tests will be generated in: ${outputDir}`
+        message: `Started codegen session. Tests will be generated in: ${outputPath}`
       };
     } catch (error: any) {
       throw new Error(`Failed to start codegen session: ${error.message}`);
