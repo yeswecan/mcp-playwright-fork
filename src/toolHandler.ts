@@ -3,6 +3,13 @@ import { chromium, request } from 'playwright';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { BROWSER_TOOLS, API_TOOLS } from './tools.js';
 import type { ToolContext } from './tools/common/types.js';
+import { ActionRecorder } from './tools/codegen/recorder.js';
+import { 
+  startCodegenSession,
+  endCodegenSession,
+  getCodegenSession,
+  clearCodegenSession
+} from './tools/codegen/index.js';
 import { 
   ScreenshotTool,
   NavigationTool,
@@ -226,94 +233,113 @@ export async function handleToolCall(
   // Initialize tools
   initializeTools(server);
 
-  // Special case for browser close to ensure it always works
-  if (name === "playwright_close") {
-    if (browser) {
-      try {
-        if (browser.isConnected()) {
-          await browser.close().catch(e => console.error("Error closing browser:", e));
+  try {
+    // Handle codegen tools
+    switch (name) {
+      case 'start_codegen_session':
+        return await handleCodegenResult(startCodegenSession.handler(args));
+      case 'end_codegen_session':
+        return await handleCodegenResult(endCodegenSession.handler(args));
+      case 'get_codegen_session':
+        return await handleCodegenResult(getCodegenSession.handler(args));
+      case 'clear_codegen_session':
+        return await handleCodegenResult(clearCodegenSession.handler(args));
+    }
+
+    // Record tool action if there's an active session
+    const recorder = ActionRecorder.getInstance();
+    const activeSession = recorder.getActiveSession();
+    if (activeSession && name !== 'playwright_close') {
+      recorder.recordAction(name, args);
+    }
+
+    // Special case for browser close to ensure it always works
+    if (name === "playwright_close") {
+      if (browser) {
+        try {
+          if (browser.isConnected()) {
+            await browser.close().catch(e => console.error("Error closing browser:", e));
+          }
+        } catch (error) {
+          console.error("Error during browser close in handler:", error);
+        } finally {
+          resetBrowserState();
         }
-      } catch (error) {
-        console.error("Error during browser close in handler:", error);
-      } finally {
-        resetBrowserState();
+        return {
+          content: [{
+            type: "text",
+            text: "Browser closed successfully",
+          }],
+          isError: false,
+        };
       }
       return {
         content: [{
           type: "text",
-          text: "Browser closed successfully",
+          text: "No browser instance to close",
         }],
         isError: false,
       };
     }
-    return {
-      content: [{
-        type: "text",
-        text: "No browser instance to close",
-      }],
-      isError: false,
-    };
-  }
 
-  // Check if we have a disconnected browser that needs cleanup
-  if (browser && !browser.isConnected() && BROWSER_TOOLS.includes(name)) {
-    console.error("Detected disconnected browser before tool execution, cleaning up...");
-    try {
-      await browser.close().catch(() => {}); // Ignore errors
-    } catch (e) {
-      // Ignore any errors during cleanup
+    // Check if we have a disconnected browser that needs cleanup
+    if (browser && !browser.isConnected() && BROWSER_TOOLS.includes(name)) {
+      console.error("Detected disconnected browser before tool execution, cleaning up...");
+      try {
+        await browser.close().catch(() => {}); // Ignore errors
+      } catch (e) {
+        // Ignore any errors during cleanup
+      }
+      resetBrowserState();
     }
-    resetBrowserState();
-  }
 
-  // Prepare context based on tool requirements
-  const context: ToolContext = {
-    server
-  };
-  
-  // Set up browser if needed
-  if (BROWSER_TOOLS.includes(name)) {
-    const browserSettings = {
-      viewport: {
-        width: args.width,
-        height: args.height
-      },
-      userAgent: name === "playwright_custom_user_agent" ? args.userAgent : undefined,
-      headless: args.headless
+    // Prepare context based on tool requirements
+    const context: ToolContext = {
+      server
     };
     
-    try {
-      context.page = await ensureBrowser(browserSettings);
-      context.browser = browser;
-    } catch (error) {
-      console.error("Failed to ensure browser:", error);
-      return {
-        content: [{
-          type: "text",
-          text: `Failed to initialize browser: ${(error as Error).message}. Please try again.`,
-        }],
-        isError: true,
+    // Set up browser if needed
+    if (BROWSER_TOOLS.includes(name)) {
+      const browserSettings = {
+        viewport: {
+          width: args.width,
+          height: args.height
+        },
+        userAgent: name === "playwright_custom_user_agent" ? args.userAgent : undefined,
+        headless: args.headless
       };
+      
+      try {
+        context.page = await ensureBrowser(browserSettings);
+        context.browser = browser;
+      } catch (error) {
+        console.error("Failed to ensure browser:", error);
+        return {
+          content: [{
+            type: "text",
+            text: `Failed to initialize browser: ${(error as Error).message}. Please try again.`,
+          }],
+          isError: true,
+        };
+      }
     }
-  }
 
-  // Set up API context if needed
-  if (API_TOOLS.includes(name)) {
-    try {
-      context.apiContext = await ensureApiContext(args.url);
-    } catch (error) {
-      return {
-        content: [{
-          type: "text",
-          text: `Failed to initialize API context: ${(error as Error).message}`,
-        }],
-        isError: true,
-      };
+    // Set up API context if needed
+    if (API_TOOLS.includes(name)) {
+      try {
+        context.apiContext = await ensureApiContext(args.url);
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `Failed to initialize API context: ${(error as Error).message}`,
+          }],
+          isError: true,
+        };
+      }
     }
-  }
 
-  // Route to appropriate tool
-  try {
+    // Route to appropriate tool
     switch (name) {
       // Browser tools
       case "playwright_navigate":
@@ -381,32 +407,35 @@ export async function handleToolCall(
         };
     }
   } catch (error) {
-    console.error(`Error executing tool ${name}:`, error);
-    
-    // Check if it's a browser connection error
-    const errorMessage = (error as Error).message;
-    if (
-      BROWSER_TOOLS.includes(name) && 
-      (errorMessage.includes("Target page, context or browser has been closed") || 
-      errorMessage.includes("Browser has been disconnected") ||
-      errorMessage.includes("Target closed") ||
-      errorMessage.includes("Protocol error"))
-    ) {
-      // Reset browser state if it's a connection issue
-      resetBrowserState();
-      return {
-        content: [{
-          type: "text",
-          text: `Browser connection error: ${errorMessage}. Browser state has been reset, please try again.`,
-        }],
-        isError: true,
-      };
-    }
-    
+    console.error(`Error handling tool ${name}:`, error);
     return {
       content: [{
         type: "text",
-        text: `Tool execution error: ${errorMessage}`,
+        text: error instanceof Error ? error.message : String(error),
+      }],
+      isError: true,
+    };
+  }
+}
+
+/**
+ * Helper function to handle codegen tool results
+ */
+async function handleCodegenResult(resultPromise: Promise<any>): Promise<CallToolResult> {
+  try {
+    const result = await resultPromise;
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify(result),
+      }],
+      isError: false,
+    };
+  } catch (error) {
+    return {
+      content: [{
+        type: "text",
+        text: error instanceof Error ? error.message : String(error),
       }],
       isError: true,
     };

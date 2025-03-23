@@ -1,7 +1,80 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
+import { codegenTools } from './tools/codegen';
 
 export function createToolDefinitions() {
   return [
+    // Codegen tools
+    {
+      name: "start_codegen_session",
+      description: "Start a new code generation session to record Playwright actions",
+      inputSchema: {
+        type: "object",
+        properties: {
+          options: {
+            type: "object",
+            description: "Code generation options",
+            properties: {
+              outputPath: { 
+                type: "string", 
+                description: "Directory path where generated tests will be saved" 
+              },
+              testNamePrefix: { 
+                type: "string", 
+                description: "Prefix to use for generated test names" 
+              },
+              includeComments: { 
+                type: "boolean", 
+                description: "Whether to include descriptive comments in generated tests" 
+              }
+            },
+            required: ["outputPath"]
+          }
+        },
+        required: ["options"]
+      }
+    },
+    {
+      name: "end_codegen_session",
+      description: "End a code generation session and generate the test file",
+      inputSchema: {
+        type: "object",
+        properties: {
+          sessionId: { 
+            type: "string", 
+            description: "ID of the session to end" 
+          }
+        },
+        required: ["sessionId"]
+      }
+    },
+    {
+      name: "get_codegen_session",
+      description: "Get information about a code generation session",
+      inputSchema: {
+        type: "object",
+        properties: {
+          sessionId: { 
+            type: "string", 
+            description: "ID of the session to retrieve" 
+          }
+        },
+        required: ["sessionId"]
+      }
+    },
+    {
+      name: "clear_codegen_session",
+      description: "Clear a code generation session without generating a test",
+      inputSchema: {
+        type: "object",
+        properties: {
+          sessionId: { 
+            type: "string", 
+            description: "ID of the session to clear" 
+          }
+        },
+        required: ["sessionId"]
+      }
+    },
     {
       name: "playwright_navigate",
       description: "Navigate to a URL",
@@ -9,7 +82,7 @@ export function createToolDefinitions() {
         type: "object",
         properties: {
           url: { type: "string", description: "URL to navigate to the website specified" },
-          width: { type: "number", description: "Viewport width in pixels (default: 1280)" },
+          width: { type: "number", description: "Viewport width in pixels " },
           height: { type: "number", description: "Viewport height in pixels (default: 720)" },
           timeout: { type: "number", description: "Navigation timeout in milliseconds" },
           waitUntil: { type: "string", description: "Navigation wait condition" },
@@ -266,4 +339,19 @@ export const API_TOOLS = [
   "playwright_put",
   "playwright_delete",
   "playwright_patch"
+];
+
+// Codegen tools
+export const CODEGEN_TOOLS = [
+  'start_codegen_session',
+  'end_codegen_session',
+  'get_codegen_session',
+  'clear_codegen_session'
+];
+
+// All available tools
+export const tools = [
+  ...BROWSER_TOOLS,
+  ...API_TOOLS,
+  ...CODEGEN_TOOLS
 ];

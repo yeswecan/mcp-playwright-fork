@@ -68,3 +68,63 @@ The test coverage report will be generated in the `coverage` directory.
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=executeautomation/mcp-playwright&type=Date)](https://star-history.com/#executeautomation/mcp-playwright&Date)
+
+## Code Generation
+
+The MCP server now includes support for generating Playwright tests from your tool actions. This feature allows you to record your interactions and automatically generate test scripts.
+
+### Usage
+
+1. Start a recording session:
+```typescript
+const { sessionId } = await handleToolCall('start_codegen_session', {
+  options: {
+    outputPath: 'tests/generated',
+    testNamePrefix: 'MyTest',
+    includeComments: true
+  }
+}, {});
+```
+
+2. Perform your actions using MCP tools:
+```typescript
+await handleToolCall('playwright_goto', { url: 'https://example.com' }, {});
+await handleToolCall('playwright_click', { selector: '#submit-button' }, {});
+await handleToolCall('playwright_fill', { selector: '#search', value: 'query' }, {});
+```
+
+3. End the session and generate the test:
+```typescript
+const { filePath, testCode } = await handleToolCall('end_codegen_session', {
+  sessionId
+}, {});
+```
+
+The generated test will be saved in the specified output directory and can be run using Playwright Test:
+
+```bash
+npx playwright test tests/generated/mytest_*.spec.ts
+```
+
+### Additional Features
+
+- **Session Management**: Use `get_codegen_session` to retrieve session information and `clear_codegen_session` to clean up sessions.
+- **Customization**: Configure output paths, test name prefixes, and comment inclusion through options.
+- **Tool Integration**: Automatically records all MCP tool actions for test generation.
+
+### Generated Test Example
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('MyTest_2024-03-23', async ({ page }) => {
+  // Navigate to example.com
+  await page.goto('https://example.com');
+
+  // Click submit button
+  await page.click('#submit-button');
+
+  // Fill search input
+  await page.fill('#search', 'query');
+});
+```
