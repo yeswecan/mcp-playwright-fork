@@ -12,6 +12,7 @@ Playwright MCP for Browser automation has following key features
 - Screenshot capabilities
 - JavaScript execution
 - Basic web interaction (navigation, clicking, form filling, drop down select and hover)
+- Content retrieval (visible text and HTML)
 
 
 <YouTubeVideoEmbed videoId="8CcgFUE16HM" />
@@ -194,3 +195,22 @@ Set a custom User Agent for the browser.
 - **Inputs:**
   - **`userAgent`** *(string)*:  
     Custom User Agent for the Playwright browser instance
+
+---
+
+### playwright_get_visible_text
+Get the visible text content of the current page.
+
+- **Response:**
+  - **`content`** *(string)*:  
+    The visible text content of the current page, extracted from visible DOM elements.
+    Hidden elements (with display:none or visibility:hidden) are excluded.
+
+---
+
+### playwright_get_html
+Get the HTML content of the current page.
+
+- **Response:**
+  - **`content`** *(string)*:  
+    The complete HTML content of the current page.
