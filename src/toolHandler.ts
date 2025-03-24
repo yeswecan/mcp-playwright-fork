@@ -457,6 +457,29 @@ export async function handleToolCall(
     }
   } catch (error) {
     console.error(`Error handling tool ${name}:`, error);
+    
+    // Handle browser-specific errors at the top level
+    if (BROWSER_TOOLS.includes(name)) {
+      const errorMessage = (error as Error).message;
+      if (
+        errorMessage.includes("Target page, context or browser has been closed") || 
+        errorMessage.includes("Browser has been disconnected") ||
+        errorMessage.includes("Target closed") ||
+        errorMessage.includes("Protocol error") ||
+        errorMessage.includes("Connection closed")
+      ) {
+        // Reset browser state if it's a connection issue
+        resetBrowserState();
+        return {
+          content: [{
+            type: "text",
+            text: `Browser connection error: ${errorMessage}. Browser state has been reset, please try again.`,
+          }],
+          isError: true,
+        };
+      }
+    }
+
     return {
       content: [{
         type: "text",
