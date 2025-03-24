@@ -1,5 +1,5 @@
 import type { Browser, Page } from 'playwright';
-import { chromium, request } from 'playwright';
+import { chromium, firefox, webkit, request } from 'playwright';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { BROWSER_TOOLS, API_TOOLS } from './tools.js';
 import type { ToolContext } from './tools/common/types.js';
@@ -38,6 +38,7 @@ import {
 // Global state
 let browser: Browser | undefined;
 let page: Page | undefined;
+let currentBrowserType: 'chromium' | 'firefox' | 'webkit' = 'chromium';
 
 /**
  * Resets browser and page variables
@@ -46,6 +47,7 @@ let page: Page | undefined;
 export function resetBrowserState() {
   browser = undefined;
   page = undefined;
+  currentBrowserType = 'chromium';
 }
 
 // Tool instances
@@ -75,6 +77,7 @@ interface BrowserSettings {
   };
   userAgent?: string;
   headless?: boolean;
+  browserType?: 'chromium' | 'firefox' | 'webkit';
 }
 
 /**
@@ -96,9 +99,37 @@ async function ensureBrowser(browserSettings?: BrowserSettings) {
 
     // Launch new browser if needed
     if (!browser) {
-      const { viewport, userAgent, headless = false } = browserSettings ?? {};
-      console.error("Launching new browser instance...");
-      browser = await chromium.launch({ headless });
+      const { viewport, userAgent, headless = false, browserType = 'chromium' } = browserSettings ?? {};
+      
+      // If browser type is changing, force a new browser instance
+      if (browser && currentBrowserType !== browserType) {
+        try {
+          await browser.close().catch(err => console.error("Error closing browser on type change:", err));
+        } catch (e) {
+          // Ignore errors
+        }
+        resetBrowserState();
+      }
+      
+      console.error(`Launching new ${browserType} browser instance...`);
+      
+      // Use the appropriate browser engine
+      let browserInstance;
+      switch (browserType) {
+        case 'firefox':
+          browserInstance = firefox;
+          break;
+        case 'webkit':
+          browserInstance = webkit;
+          break;
+        case 'chromium':
+        default:
+          browserInstance = chromium;
+          break;
+      }
+      
+      browser = await browserInstance.launch({ headless });
+      currentBrowserType = browserType;
 
       // Add cleanup logic when browser is disconnected
       browser.on('disconnected', () => {
@@ -156,8 +187,25 @@ async function ensureBrowser(browserSettings?: BrowserSettings) {
     resetBrowserState();
     
     // Try one more time from scratch
-    const { viewport, userAgent, headless = false } = browserSettings ?? {};
-    browser = await chromium.launch({ headless });
+    const { viewport, userAgent, headless = false, browserType = 'chromium' } = browserSettings ?? {};
+    
+    // Use the appropriate browser engine
+    let browserInstance;
+    switch (browserType) {
+      case 'firefox':
+        browserInstance = firefox;
+        break;
+      case 'webkit':
+        browserInstance = webkit;
+        break;
+      case 'chromium':
+      default:
+        browserInstance = chromium;
+        break;
+    }
+    
+    browser = await browserInstance.launch({ headless });
+    currentBrowserType = browserType;
     
     browser.on('disconnected', () => {
       console.error("Browser disconnected event triggered (retry)");
@@ -293,36 +341,37 @@ export async function handleToolCall(
       resetBrowserState();
     }
 
-    // Prepare context based on tool requirements
-    const context: ToolContext = {
-      server
+  // Prepare context based on tool requirements
+  const context: ToolContext = {
+    server
+  };
+  
+  // Set up browser if needed
+  if (BROWSER_TOOLS.includes(name)) {
+    const browserSettings = {
+      viewport: {
+        width: args.width,
+        height: args.height
+      },
+      userAgent: name === "playwright_custom_user_agent" ? args.userAgent : undefined,
+      headless: args.headless,
+      browserType: args.browserType || 'chromium'
     };
     
-    // Set up browser if needed
-    if (BROWSER_TOOLS.includes(name)) {
-      const browserSettings = {
-        viewport: {
-          width: args.width,
-          height: args.height
-        },
-        userAgent: name === "playwright_custom_user_agent" ? args.userAgent : undefined,
-        headless: args.headless
+    try {
+      context.page = await ensureBrowser(browserSettings);
+      context.browser = browser;
+    } catch (error) {
+      console.error("Failed to ensure browser:", error);
+      return {
+        content: [{
+          type: "text",
+          text: `Failed to initialize browser: ${(error as Error).message}. Please try again.`,
+        }],
+        isError: true,
       };
-      
-      try {
-        context.page = await ensureBrowser(browserSettings);
-        context.browser = browser;
-      } catch (error) {
-        console.error("Failed to ensure browser:", error);
-        return {
-          content: [{
-            type: "text",
-            text: `Failed to initialize browser: ${(error as Error).message}. Please try again.`,
-          }],
-          isError: true,
-        };
-      }
     }
+  }
 
     // Set up API context if needed
     if (API_TOOLS.includes(name)) {
