@@ -241,7 +241,6 @@ export function createToolDefinitions() {
         required: ["userAgent"],
       },
     },
-    ,
     {
       name: "playwright_get_visible_text",
       description: "Get the visible text content of the current page",
