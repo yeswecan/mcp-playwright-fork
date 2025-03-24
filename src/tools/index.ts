@@ -13,7 +13,9 @@ export const BROWSER_TOOLS = [
   "playwright_hover",
   "playwright_evaluate",
   "playwright_console_logs",
-  "playwright_close"
+  "playwright_close",
+  "playwright_get_visible_text",
+  "playwright_get_html"
 ];
 
 export const API_TOOLS = [

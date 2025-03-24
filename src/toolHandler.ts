@@ -20,6 +20,10 @@ import {
   HoverTool,
   EvaluateTool
 } from './tools/browser/interaction.js';
+import { 
+  VisibleTextTool, 
+  VisibleHtmlTool 
+} from './tools/browser/visiblePage.js';
 import {
   GetRequestTool,
   PostRequestTool,
@@ -27,6 +31,7 @@ import {
   PatchRequestTool,
   DeleteRequestTool
 } from './tools/api/requests.js';
+
 
 // Global state
 let browser: Browser | undefined;
@@ -57,6 +62,9 @@ let evaluateTool: EvaluateTool;
 let expectResponseTool: ExpectResponseTool;
 let assertResponseTool: AssertResponseTool;
 let customUserAgentTool: CustomUserAgentTool;
+let visibleTextTool: VisibleTextTool;
+let visibleHtmlTool: VisibleHtmlTool;
+
 let getRequestTool: GetRequestTool;
 let postRequestTool: PostRequestTool;
 let putRequestTool: PutRequestTool;
@@ -254,6 +262,8 @@ function initializeTools(server: any) {
   if (!expectResponseTool) expectResponseTool = new ExpectResponseTool(server);
   if (!assertResponseTool) assertResponseTool = new AssertResponseTool(server);
   if (!customUserAgentTool) customUserAgentTool = new CustomUserAgentTool(server);
+  if (!visibleTextTool) visibleTextTool = new VisibleTextTool(server);
+  if (!visibleHtmlTool) visibleHtmlTool = new VisibleHtmlTool(server);
   
   // API tools
   if (!getRequestTool) getRequestTool = new GetRequestTool(server);
@@ -403,6 +413,12 @@ export async function handleToolCall(
 
       case "playwright_custom_user_agent":
         return await customUserAgentTool.execute(args, context);
+        
+      case "playwright_visible_text":
+        return await visibleTextTool.execute(args, context);
+      
+      case "playwright_visible_html":
+        return await visibleHtmlTool.execute(args, context);
         
       // API tools
       case "playwright_get":
