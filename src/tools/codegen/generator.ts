@@ -64,52 +64,99 @@ export class PlaywrightGenerator {
     const { toolName, parameters } = action;
 
     switch (toolName) {
-      case 'edit_file':
-        return this.generateEditFileStep(parameters);
-      case 'run_terminal_cmd':
-        return this.generateRunCommandStep(parameters);
-      case 'delete_file':
-        return this.generateDeleteFileStep(parameters);
-      // Add more tool conversions as needed
+      case 'playwright_navigate':
+        return this.generateNavigateStep(parameters);
+      case 'playwright_fill':
+        return this.generateFillStep(parameters);
+      case 'playwright_click':
+        return this.generateClickStep(parameters);
+      case 'playwright_screenshot':
+        return this.generateScreenshotStep(parameters);
+      case 'playwright_expect_response':
+        return this.generateExpectResponseStep(parameters);
+      case 'playwright_assert_response':
+        return this.generateAssertResponseStep(parameters);
+      case 'playwright_hover':
+        return this.generateHoverStep(parameters);
+      case 'playwright_select':
+        return this.generateSelectStep(parameters);
+      case 'playwright_custom_user_agent':
+        return this.generateCustomUserAgentStep(parameters);
       default:
-        return this.generateGenericStep(action);
+        console.warn(`Unsupported tool: ${toolName}`);
+        return null;
     }
   }
 
-  private generateEditFileStep(parameters: Record<string, unknown>): string {
-    const { target_file, code_edit } = parameters;
+  private generateNavigateStep(parameters: Record<string, unknown>): string {
+    const { url, waitUntil } = parameters;
+    const options = waitUntil ? `, { waitUntil: '${waitUntil}' }` : '';
     return `
-    // Edit file: ${target_file}
-    await page.evaluate(async () => {
-      const content = \`${code_edit}\`;
-      await writeFile('${target_file}', content);
-    });`;
+    // Navigate to URL
+    await page.goto('${url}'${options});`;
   }
 
-  private generateRunCommandStep(parameters: Record<string, unknown>): string {
-    const { command } = parameters;
+  private generateFillStep(parameters: Record<string, unknown>): string {
+    const { selector, value } = parameters;
     return `
-    // Run command
-    await page.evaluate(async () => {
-      await executeCommand(\`${command}\`);
-    });`;
+    // Fill input field
+    await page.fill('${selector}', '${value}');`;
   }
 
-  private generateDeleteFileStep(parameters: Record<string, unknown>): string {
-    const { target_file } = parameters;
+  private generateClickStep(parameters: Record<string, unknown>): string {
+    const { selector } = parameters;
     return `
-    // Delete file
-    await page.evaluate(async () => {
-      await deleteFile('${target_file}');
-    });`;
+    // Click element
+    await page.click('${selector}');`;
   }
 
-  private generateGenericStep(action: CodegenAction): string {
+  private generateScreenshotStep(parameters: Record<string, unknown>): string {
+    const { name, fullPage = false, path } = parameters;
+    const options = [];
+    if (fullPage) options.push('fullPage: true');
+    if (path) options.push(`path: '${path}'`);
+    
+    const optionsStr = options.length > 0 ? `, { ${options.join(', ')} }` : '';
     return `
-    // ${action.toolName}
-    await page.evaluate(async () => {
-      await executeTool('${action.toolName}', ${JSON.stringify(action.parameters)});
-    });`;
+    // Take screenshot
+    await page.screenshot({ path: '${name}.png'${optionsStr} });`;
+  }
+
+  private generateExpectResponseStep(parameters: Record<string, unknown>): string {
+    const { url, id } = parameters;
+    return `
+    // Wait for response
+    const ${id}Response = page.waitForResponse('${url}');`;
+  }
+
+  private generateAssertResponseStep(parameters: Record<string, unknown>): string {
+    const { id, value } = parameters;
+    const assertion = value 
+      ? `\n    const responseText = await ${id}Response.text();\n    expect(responseText).toContain('${value}');`
+      : `\n    expect(${id}Response.ok()).toBeTruthy();`;
+    return `
+    // Assert response${assertion}`;
+  }
+
+  private generateHoverStep(parameters: Record<string, unknown>): string {
+    const { selector } = parameters;
+    return `
+    // Hover over element
+    await page.hover('${selector}');`;
+  }
+
+  private generateSelectStep(parameters: Record<string, unknown>): string {
+    const { selector, value } = parameters;
+    return `
+    // Select option
+    await page.selectOption('${selector}', '${value}');`;
+  }
+
+  private generateCustomUserAgentStep(parameters: Record<string, unknown>): string {
+    const { userAgent } = parameters;
+    return `
+    // Set custom user agent
+    await context.setUserAgent('${userAgent}');`;
   }
 
   private generateTestCode(testCase: PlaywrightTestCase): string {
@@ -120,7 +167,7 @@ export class PlaywrightGenerator {
     return `
 ${imports}
 
-test('${testCase.name}', async ({ page }) => {
+test('${testCase.name}', async ({ page, context }) => {
   ${testCase.steps.join('\n')}
 });`;
   }
