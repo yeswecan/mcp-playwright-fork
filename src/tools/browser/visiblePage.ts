@@ -1,6 +1,6 @@
-import { resetBrowserState } from "../../toolHandler";
-import { ToolContext, ToolResponse, createErrorResponse, createSuccessResponse } from "../common/types";
-import { BrowserToolBase } from "./base";
+import { resetBrowserState } from "../../toolHandler.js";
+import { ToolContext, ToolResponse, createErrorResponse, createSuccessResponse } from "../common/types.js";
+import { BrowserToolBase } from "./base.js";
 
 /**
  * Tool for getting the visible text content of the current page
