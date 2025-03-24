@@ -251,7 +251,7 @@ export function createToolDefinitions() {
       },
     },
     {
-      name: "playwright_get_html",
+      name: "playwright_get_visible_html",
       description: "Get the HTML content of the current page",
       inputSchema: {
         type: "object",
@@ -277,7 +277,7 @@ export const BROWSER_TOOLS = [
   "playwright_assert_response",
   "playwright_custom_user_agent",
   "playwright_get_visible_text",
-  "playwright_get_html"
+  "playwright_get_visible_html"
 ];
 
 // API Request tools for conditional launch

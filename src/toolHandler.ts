@@ -414,10 +414,10 @@ export async function handleToolCall(
       case "playwright_custom_user_agent":
         return await customUserAgentTool.execute(args, context);
         
-      case "playwright_visible_text":
+      case "playwright_get_visible_text":
         return await visibleTextTool.execute(args, context);
       
-      case "playwright_visible_html":
+      case "playwright_get_visible_html":
         return await visibleHtmlTool.execute(args, context);
         
       // API tools
