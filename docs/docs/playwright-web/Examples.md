@@ -97,3 +97,30 @@ When I save the page as PDF with the following settings:
   | Left Margin      | 1cm       |
 Then I should see confirmation that the PDF was saved
 ```
+
+### Extracting Page Content
+
+You can extract visible text content from the page:
+
+```bdd
+Given I navigate to website "https://example.com/article"
+When I extract all visible text from the page
+Then I should see the article content in plain text without hidden elements
+```
+
+You can also get the complete HTML of the page:
+
+```bdd
+Given I navigate to website "https://example.com/products"
+When I extract the HTML content of the page
+Then I should receive the complete HTML structure of the page
+```
+
+Example use case for content analysis:
+
+```bdd
+Given I navigate to website "https://example.com/pricing"
+When I extract all visible text from the page
+Then I should be able to analyze the text to find pricing information
+And I can determine if the "Enterprise" plan mentions "custom pricing"
+```
