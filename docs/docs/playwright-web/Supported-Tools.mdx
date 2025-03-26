@@ -214,3 +214,71 @@ Get the HTML content of the current page.
 - **Response:**
   - **`content`** *(string)*:  
     The complete HTML content of the current page.
+
+---
+
+### playwright_go_back
+Navigate back in browser history.
+
+- **Response:**
+  - Confirmation message that the browser has navigated back in its history.
+
+---
+
+### playwright_go_forward
+Navigate forward in browser history.
+
+- **Response:**
+  - Confirmation message that the browser has navigated forward in its history.
+
+---
+
+### playwright_drag
+Drag an element to a target location.
+
+- **Inputs:**
+  - **`sourceSelector`** *(string)*:  
+    CSS selector for the element to drag.
+  - **`targetSelector`** *(string)*:  
+    CSS selector for the target location.
+
+- **Response:**
+  - Confirmation message that the drag operation has been performed.
+
+---
+
+### playwright_press_key
+Press a keyboard key.
+
+- **Inputs:**
+  - **`key`** *(string)*:  
+    Key to press (e.g. 'Enter', 'ArrowDown', 'a').
+  - **`selector`** *(string, optional)*:  
+    CSS selector for an element to focus before pressing the key.
+
+- **Response:**
+  - Confirmation message indicating which key was pressed.
+
+---
+
+### playwright_save_as_pdf
+Save the current page as a PDF file.
+
+- **Inputs:**
+  - **`outputPath`** *(string)*:  
+    Directory path where the PDF will be saved.
+  - **`filename`** *(string, optional, default: "page.pdf")*:  
+    Name of the PDF file.
+  - **`format`** *(string, optional, default: "A4")*:  
+    Page format (e.g. 'A4', 'Letter').
+  - **`printBackground`** *(boolean, optional, default: true)*:  
+    Whether to print background graphics.
+  - **`margin`** *(object, optional)*:  
+    Page margins with the following properties:
+    - **`top`** *(string)*: Top margin (e.g. '1cm').
+    - **`right`** *(string)*: Right margin (e.g. '1cm').
+    - **`bottom`** *(string)*: Bottom margin (e.g. '1cm').
+    - **`left`** *(string)*: Left margin (e.g. '1cm').
+
+- **Response:**
+  - Path to the saved PDF file.
