@@ -47,4 +47,45 @@ describe('Tool Definitions', () => {
     expect(navigateTool!.inputSchema.properties).toHaveProperty('headless');
     expect(navigateTool!.inputSchema.required).toEqual(['url']);
   });
+
+  test('should validate go_back tool schema', () => {
+    const goBackTool = toolDefinitions.find(tool => tool.name === 'playwright_go_back');
+    expect(goBackTool).toBeDefined();
+    expect(goBackTool!.inputSchema.properties).toEqual({});
+    expect(goBackTool!.inputSchema.required).toEqual([]);
+  });
+
+  test('should validate go_forward tool schema', () => {
+    const goForwardTool = toolDefinitions.find(tool => tool.name === 'playwright_go_forward');
+    expect(goForwardTool).toBeDefined();
+    expect(goForwardTool!.inputSchema.properties).toEqual({});
+    expect(goForwardTool!.inputSchema.required).toEqual([]);
+  });
+
+  test('should validate drag tool schema', () => {
+    const dragTool = toolDefinitions.find(tool => tool.name === 'playwright_drag');
+    expect(dragTool).toBeDefined();
+    expect(dragTool!.inputSchema.properties).toHaveProperty('sourceSelector');
+    expect(dragTool!.inputSchema.properties).toHaveProperty('targetSelector');
+    expect(dragTool!.inputSchema.required).toEqual(['sourceSelector', 'targetSelector']);
+  });
+
+  test('should validate press_key tool schema', () => {
+    const pressKeyTool = toolDefinitions.find(tool => tool.name === 'playwright_press_key');
+    expect(pressKeyTool).toBeDefined();
+    expect(pressKeyTool!.inputSchema.properties).toHaveProperty('key');
+    expect(pressKeyTool!.inputSchema.properties).toHaveProperty('selector');
+    expect(pressKeyTool!.inputSchema.required).toEqual(['key']);
+  });
+
+  test('should validate save_as_pdf tool schema', () => {
+    const saveAsPdfTool = toolDefinitions.find(tool => tool.name === 'playwright_save_as_pdf');
+    expect(saveAsPdfTool).toBeDefined();
+    expect(saveAsPdfTool!.inputSchema.properties).toHaveProperty('outputPath');
+    expect(saveAsPdfTool!.inputSchema.properties).toHaveProperty('filename');
+    expect(saveAsPdfTool!.inputSchema.properties).toHaveProperty('format');
+    expect(saveAsPdfTool!.inputSchema.properties).toHaveProperty('printBackground');
+    expect(saveAsPdfTool!.inputSchema.properties).toHaveProperty('margin');
+    expect(saveAsPdfTool!.inputSchema.required).toEqual(['outputPath']);
+  });
 }); 

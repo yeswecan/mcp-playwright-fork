@@ -184,6 +184,39 @@ describe('Tool Handler', () => {
     const clickResult = await handleToolCall('playwright_click', { selector: '#test-button' }, mockServer);
     expect(clickResult).toBeDefined();
     expect(clickResult.content).toBeDefined();
+
+    // Test new navigation tools
+    const goBackResult = await handleToolCall('playwright_go_back', {}, mockServer);
+    expect(goBackResult).toBeDefined();
+    expect(goBackResult.content).toBeDefined();
+    
+    const goForwardResult = await handleToolCall('playwright_go_forward', {}, mockServer);
+    expect(goForwardResult).toBeDefined();
+    expect(goForwardResult.content).toBeDefined();
+
+    // Test drag tool
+    const dragResult = await handleToolCall('playwright_drag', { 
+      sourceSelector: '#source-element',
+      targetSelector: '#target-element'
+    }, mockServer);
+    expect(dragResult).toBeDefined();
+    expect(dragResult.content).toBeDefined();
+    
+    // Test press key tool
+    const pressKeyResult = await handleToolCall('playwright_press_key', { 
+      key: 'Enter',
+      selector: '#input-field'
+    }, mockServer);
+    expect(pressKeyResult).toBeDefined();
+    expect(pressKeyResult.content).toBeDefined();
+
+    // Test save as PDF tool
+    const saveAsPdfResult = await handleToolCall('playwright_save_as_pdf', { 
+      outputPath: '/downloads',
+      filename: 'test.pdf'
+    }, mockServer);
+    expect(saveAsPdfResult).toBeDefined();
+    expect(saveAsPdfResult.content).toBeDefined();
   });
   
   test('handleToolCall should handle Firefox browser', async () => {
