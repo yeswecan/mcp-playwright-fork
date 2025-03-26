@@ -332,6 +332,72 @@ export function createToolDefinitions() {
         required: [],
       },
     },
+    {
+      name: "playwright_go_back",
+      description: "Navigate back in browser history",
+      inputSchema: {
+        type: "object",
+        properties: {},
+        required: [],
+      },
+    },
+    {
+      name: "playwright_go_forward",
+      description: "Navigate forward in browser history",
+      inputSchema: {
+        type: "object",
+        properties: {},
+        required: [],
+      },
+    },
+    {
+      name: "playwright_drag",
+      description: "Drag an element to a target location",
+      inputSchema: {
+        type: "object",
+        properties: {
+          sourceSelector: { type: "string", description: "CSS selector for the element to drag" },
+          targetSelector: { type: "string", description: "CSS selector for the target location" }
+        },
+        required: ["sourceSelector", "targetSelector"],
+      },
+    },
+    {
+      name: "playwright_press_key",
+      description: "Press a keyboard key",
+      inputSchema: {
+        type: "object",
+        properties: {
+          key: { type: "string", description: "Key to press (e.g. 'Enter', 'ArrowDown', 'a')" },
+          selector: { type: "string", description: "Optional CSS selector to focus before pressing key" }
+        },
+        required: ["key"],
+      },
+    },
+    {
+      name: "playwright_save_as_pdf",
+      description: "Save the current page as a PDF file",
+      inputSchema: {
+        type: "object",
+        properties: {
+          outputPath: { type: "string", description: "Directory path where PDF will be saved" },
+          filename: { type: "string", description: "Name of the PDF file (default: page.pdf)" },
+          format: { type: "string", description: "Page format (e.g. 'A4', 'Letter')" },
+          printBackground: { type: "boolean", description: "Whether to print background graphics" },
+          margin: {
+            type: "object",
+            description: "Page margins",
+            properties: {
+              top: { type: "string" },
+              right: { type: "string" },
+              bottom: { type: "string" },
+              left: { type: "string" }
+            }
+          }
+        },
+        required: ["outputPath"],
+      },
+    },
   ] as const satisfies Tool[];
 }
 
@@ -350,7 +416,12 @@ export const BROWSER_TOOLS = [
   "playwright_assert_response",
   "playwright_custom_user_agent",
   "playwright_get_visible_text",
-  "playwright_get_visible_html"
+  "playwright_get_visible_html",
+  "playwright_go_back",
+  "playwright_go_forward",
+  "playwright_drag",
+  "playwright_press_key",
+  "playwright_save_as_pdf"
 ];
 
 // API Request tools for conditional launch
