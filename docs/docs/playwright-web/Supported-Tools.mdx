@@ -9,6 +9,8 @@ import YouTubeVideoEmbed from '@site/src/components/HomepageFeatures/YouTubeVide
 
 Playwright MCP for Browser automation has following key features
 - Console log monitoring
+- Code Generation
+- Web Scraping
 - Screenshot capabilities
 - JavaScript execution
 - Basic web interaction (navigation, clicking, form filling, drop down select and hover)
@@ -23,6 +25,65 @@ Playwright MCP for Browser automation has following key features
 Playwright UI automation is supported for very limited feature sets, more features will be added in upcoming days. Please feel free to fork the repo and add the feature and raise PR, will can build the library together!
 :::
 
+## Code Generation Tools
+
+These tools allow you to record and generate reusable Playwright test scripts.
+
+### start_codegen_session
+Start a new code generation session to record Playwright actions.
+
+- **Inputs:**
+  - **`options`** *(object, required)*:  
+    Code generation options:
+    - **`outputPath`** *(string, required)*:  
+      Directory path where generated tests will be saved (use absolute path).
+    - **`testNamePrefix`** *(string, optional)*:  
+      Prefix to use for generated test names (default: 'GeneratedTest').
+    - **`includeComments`** *(boolean, optional)*:  
+      Whether to include descriptive comments in generated tests.
+
+- **Response:**
+  - Session ID for the newly created code generation session.
+
+---
+
+### end_codegen_session
+End a code generation session and generate the test file.
+
+- **Inputs:**
+  - **`sessionId`** *(string, required)*:  
+    ID of the session to end.
+
+- **Response:**
+  - Information about the generated test file.
+
+---
+
+### get_codegen_session
+Get information about a code generation session.
+
+- **Inputs:**
+  - **`sessionId`** *(string, required)*:  
+    ID of the session to retrieve.
+
+- **Response:**
+  - Session information including recorded actions and status.
+
+---
+
+### clear_codegen_session
+Clear a code generation session without generating a test.
+
+- **Inputs:**
+  - **`sessionId`** *(string, required)*:  
+    ID of the session to clear.
+
+- **Response:**
+  - Confirmation that the session was cleared.
+
+---
+
+## Browser Automation Tools
 
 ### Playwright_navigate
 
@@ -214,3 +275,71 @@ Get the HTML content of the current page.
 - **Response:**
   - **`content`** *(string)*:  
     The complete HTML content of the current page.
+
+---
+
+### playwright_go_back
+Navigate back in browser history.
+
+- **Response:**
+  - Confirmation message that the browser has navigated back in its history.
+
+---
+
+### playwright_go_forward
+Navigate forward in browser history.
+
+- **Response:**
+  - Confirmation message that the browser has navigated forward in its history.
+
+---
+
+### playwright_drag
+Drag an element to a target location.
+
+- **Inputs:**
+  - **`sourceSelector`** *(string)*:  
+    CSS selector for the element to drag.
+  - **`targetSelector`** *(string)*:  
+    CSS selector for the target location.
+
+- **Response:**
+  - Confirmation message that the drag operation has been performed.
+
+---
+
+### playwright_press_key
+Press a keyboard key.
+
+- **Inputs:**
+  - **`key`** *(string)*:  
+    Key to press (e.g. 'Enter', 'ArrowDown', 'a').
+  - **`selector`** *(string, optional)*:  
+    CSS selector for an element to focus before pressing the key.
+
+- **Response:**
+  - Confirmation message indicating which key was pressed.
+
+---
+
+### playwright_save_as_pdf
+Save the current page as a PDF file.
+
+- **Inputs:**
+  - **`outputPath`** *(string)*:  
+    Directory path where the PDF will be saved.
+  - **`filename`** *(string, optional, default: "page.pdf")*:  
+    Name of the PDF file.
+  - **`format`** *(string, optional, default: "A4")*:  
+    Page format (e.g. 'A4', 'Letter').
+  - **`printBackground`** *(boolean, optional, default: true)*:  
+    Whether to print background graphics.
+  - **`margin`** *(object, optional)*:  
+    Page margins with the following properties:
+    - **`top`** *(string)*: Top margin (e.g. '1cm').
+    - **`right`** *(string)*: Right margin (e.g. '1cm').
+    - **`bottom`** *(string)*: Bottom margin (e.g. '1cm').
+    - **`left`** *(string)*: Left margin (e.g. '1cm').
+
+- **Response:**
+  - Path to the saved PDF file.

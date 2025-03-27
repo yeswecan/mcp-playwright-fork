@@ -88,4 +88,34 @@ export class CloseBrowserTool extends BrowserToolBase {
     
     return createSuccessResponse("No browser instance to close");
   }
+}
+
+/**
+ * Tool for navigating back in browser history
+ */
+export class GoBackTool extends BrowserToolBase {
+  /**
+   * Execute the go back tool
+   */
+  async execute(args: any, context: ToolContext): Promise<ToolResponse> {
+    return this.safeExecute(context, async (page) => {
+      await page.goBack();
+      return createSuccessResponse("Navigated back in browser history");
+    });
+  }
+}
+
+/**
+ * Tool for navigating forward in browser history
+ */
+export class GoForwardTool extends BrowserToolBase {
+  /**
+   * Execute the go forward tool
+   */
+  async execute(args: any, context: ToolContext): Promise<ToolResponse> {
+    return this.safeExecute(context, async (page) => {
+      await page.goForward();
+      return createSuccessResponse("Navigated forward in browser history");
+    });
+  }
 } 

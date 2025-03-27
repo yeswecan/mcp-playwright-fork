@@ -38,6 +38,9 @@ import {
   PatchRequestTool,
   DeleteRequestTool
 } from './tools/api/requests.js';
+import { GoBackTool, GoForwardTool } from './tools/browser/navigation.js';
+import { DragTool, PressKeyTool } from './tools/browser/interaction.js';
+import { SaveAsPdfTool } from './tools/browser/output.js';
 
 
 // Global state
@@ -77,6 +80,13 @@ let postRequestTool: PostRequestTool;
 let putRequestTool: PutRequestTool;
 let patchRequestTool: PatchRequestTool;
 let deleteRequestTool: DeleteRequestTool;
+
+// Add these variables at the top with other tool declarations
+let goBackTool: GoBackTool;
+let goForwardTool: GoForwardTool;
+let dragTool: DragTool;
+let pressKeyTool: PressKeyTool;
+let saveAsPdfTool: SaveAsPdfTool;
 
 interface BrowserSettings {
   viewport?: {
@@ -278,6 +288,13 @@ function initializeTools(server: any) {
   if (!putRequestTool) putRequestTool = new PutRequestTool(server);
   if (!patchRequestTool) patchRequestTool = new PatchRequestTool(server);
   if (!deleteRequestTool) deleteRequestTool = new DeleteRequestTool(server);
+
+  // Initialize new tools
+  if (!goBackTool) goBackTool = new GoBackTool(server);
+  if (!goForwardTool) goForwardTool = new GoForwardTool(server);
+  if (!dragTool) dragTool = new DragTool(server);
+  if (!pressKeyTool) pressKeyTool = new PressKeyTool(server);
+  if (!saveAsPdfTool) saveAsPdfTool = new SaveAsPdfTool(server);
 }
 
 /**
@@ -461,6 +478,18 @@ export async function handleToolCall(
         
       case "playwright_delete":
         return await deleteRequestTool.execute(args, context);
+      
+      // New tools
+      case "playwright_go_back":
+        return await goBackTool.execute(args, context);
+      case "playwright_go_forward":
+        return await goForwardTool.execute(args, context);
+      case "playwright_drag":
+        return await dragTool.execute(args, context);
+      case "playwright_press_key":
+        return await pressKeyTool.execute(args, context);
+      case "playwright_save_as_pdf":
+        return await saveAsPdfTool.execute(args, context);
       
       default:
         return {

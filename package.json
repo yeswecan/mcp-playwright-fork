@@ -1,6 +1,6 @@
 {
   "name": "@executeautomation/playwright-mcp-server",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Model Context Protocol servers for Playwright",
   "license": "MIT",
   "author": "ExecuteAutomation, Ltd (https://executeautomation.com)",
@@ -32,7 +32,7 @@
     "@playwright/browser-firefox": "1.51.1",
     "@playwright/browser-webkit": "1.51.1",
     "playwright": "1.51.1",
-    "@playwright/test": "^1.42.1",
+    "@playwright/test": "^1.51.1",
     "uuid": "^9.0.1"
   },
   "keywords": [
