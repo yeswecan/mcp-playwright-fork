@@ -398,6 +398,17 @@ export function createToolDefinitions() {
         required: ["outputPath"],
       },
     },
+    {
+      name: "playwright_click_and_switch_tab",
+      description: "Click a link and switch to the newly opened tab",
+      inputSchema: {
+        type: "object",
+        properties: {
+          selector: { type: "string", description: "CSS selector for the link to click" },
+        },
+        required: ["selector"],
+      },
+    },
   ] as const satisfies Tool[];
 }
 
@@ -421,7 +432,8 @@ export const BROWSER_TOOLS = [
   "playwright_go_forward",
   "playwright_drag",
   "playwright_press_key",
-  "playwright_save_as_pdf"
+  "playwright_save_as_pdf",
+  "playwright_click_and_switch_tab"
 ];
 
 // API Request tools for conditional launch

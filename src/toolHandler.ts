@@ -41,7 +41,7 @@ import {
 import { GoBackTool, GoForwardTool } from './tools/browser/navigation.js';
 import { DragTool, PressKeyTool } from './tools/browser/interaction.js';
 import { SaveAsPdfTool } from './tools/browser/output.js';
-
+import { ClickAndSwitchTabTool } from './tools/browser/interaction.js';
 
 // Global state
 let browser: Browser | undefined;
@@ -57,7 +57,15 @@ export function resetBrowserState() {
   page = undefined;
   currentBrowserType = 'chromium';
 }
-
+/**
+ * Sets the provided page to the global page variable
+ * @param newPage The Page object to set as the global page
+ */
+export function setGlobalPage(newPage: Page): void {
+  page = newPage;
+  page.bringToFront();// Bring the new tab to the front
+  console.log("Global page has been updated.");
+}
 // Tool instances
 let screenshotTool: ScreenshotTool;
 let navigationTool: NavigationTool;
@@ -87,6 +95,8 @@ let goForwardTool: GoForwardTool;
 let dragTool: DragTool;
 let pressKeyTool: PressKeyTool;
 let saveAsPdfTool: SaveAsPdfTool;
+let clickAndSwitchTabTool: ClickAndSwitchTabTool;
+
 
 interface BrowserSettings {
   viewport?: {
@@ -295,6 +305,7 @@ function initializeTools(server: any) {
   if (!dragTool) dragTool = new DragTool(server);
   if (!pressKeyTool) pressKeyTool = new PressKeyTool(server);
   if (!saveAsPdfTool) saveAsPdfTool = new SaveAsPdfTool(server);
+  if (!clickAndSwitchTabTool) clickAndSwitchTabTool = new ClickAndSwitchTabTool(server);
 }
 
 /**
@@ -490,6 +501,8 @@ export async function handleToolCall(
         return await pressKeyTool.execute(args, context);
       case "playwright_save_as_pdf":
         return await saveAsPdfTool.execute(args, context);
+      case "playwright_click_and_switch_tab":
+        return await clickAndSwitchTabTool.execute(args, context);
       
       default:
         return {
