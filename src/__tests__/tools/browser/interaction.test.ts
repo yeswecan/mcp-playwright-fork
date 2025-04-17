@@ -153,7 +153,7 @@ describe('Browser Interaction Tools', () => {
 
   describe('ClickAndSwitchTabTool', () => {
     test('should click a link and switch to the new tab', async () => {
-      const args = {
+      const args = { 
         selector: 'a#test-link',
       };
   
