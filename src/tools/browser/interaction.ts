@@ -1,6 +1,6 @@
 import { BrowserToolBase } from './base.js';
 import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse } from '../common/types.js';
-
+import { setGlobalPage } from '../../toolHandler.js';
 /**
  * Tool for clicking elements on the page
  */
@@ -10,12 +10,41 @@ export class ClickTool extends BrowserToolBase {
    */
   async execute(args: any, context: ToolContext): Promise<ToolResponse> {
     return this.safeExecute(context, async (page) => {
-      await page.click(args.selector);
+      await page.click(args.selector);      
       return createSuccessResponse(`Clicked element: ${args.selector}`);
     });
   }
 }
+/**
+ * Tool for clicking a link and switching to the new tab
+ */
+export class ClickAndSwitchTabTool extends BrowserToolBase {
+  /**
+   * Execute the click and switch tab tool
+   */
+  async execute(args: any, context: ToolContext): Promise<ToolResponse> {
+    
+    return this.safeExecute(context, async (page) => {
+      // Listen for a new tab to open
+      const [newPage] = await Promise.all([
+        //context.browser.waitForEvent('page'), // Wait for a new page (tab) to open
+        page.context().waitForEvent('page'),// Wait for a new page (tab) to open
+        page.click(args.selector), // Click the link that opens the new tab
+      ]);
 
+      // Wait for the new page to load
+      await newPage.waitForLoadState('domcontentloaded');
+
+      // Switch control to the new tab
+      setGlobalPage(newPage);
+      //page= newPage; // Update the current page to the new tab
+      //context.page = newPage;
+      //context.page.bringToFront(); // Bring the new tab to the front
+      return createSuccessResponse(`Clicked link and switched to new tab: ${newPage.url()}`);
+      //return createSuccessResponse(`Clicked link and switched to new tab: ${context.page.url()}`);
+    });
+  }
+}
 /**
  * Tool for clicking elements inside iframes
  */
@@ -167,3 +196,33 @@ export class PressKeyTool extends BrowserToolBase {
     });
   }
 } 
+
+
+/**
+ * Tool for switching browser tabs
+ */
+// export class SwitchTabTool extends BrowserToolBase {
+//   /**
+//    * Switch the tab to the specified index
+//    */
+//   async execute(args: any, context: ToolContext): Promise<ToolResponse> {
+//     return this.safeExecute(context, async (page) => {
+//       const tabs = await browser.page;      
+
+//       // Validate the tab index
+//       const tabIndex = Number(args.index);
+//       if (isNaN(tabIndex)) {
+//         return createErrorResponse(`Invalid tab index: ${args.index}. It must be a number.`);
+//       }
+
+//       if (tabIndex >= 0 && tabIndex < tabs.length) {
+//         await tabs[tabIndex].bringToFront();
+//         return createSuccessResponse(`Switched to tab with index ${tabIndex}`);
+//       } else {
+//         return createErrorResponse(
+//           `Tab index out of range: ${tabIndex}. Available tabs: 0 to ${tabs.length - 1}.`
+//         );
+//       }
+//     });
+//   }
+// }

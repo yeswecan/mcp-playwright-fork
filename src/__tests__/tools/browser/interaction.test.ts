@@ -1,4 +1,4 @@
-import { ClickTool, FillTool, SelectTool, HoverTool, EvaluateTool, IframeClickTool } from '../../../tools/browser/interaction.js';
+import { ClickTool,ClickAndSwitchTabTool, FillTool, SelectTool, HoverTool, EvaluateTool, IframeClickTool } from '../../../tools/browser/interaction.js';
 import { NavigationTool } from '../../../tools/browser/navigation.js';
 import { ToolContext } from '../../../tools/common/types.js';
 import { Page, Browser } from 'playwright';
@@ -10,6 +10,19 @@ const mockPageFill = jest.fn().mockImplementation(() => Promise.resolve());
 const mockPageSelectOption = jest.fn().mockImplementation(() => Promise.resolve());
 const mockPageHover = jest.fn().mockImplementation(() => Promise.resolve());
 const mockPageWaitForSelector = jest.fn().mockImplementation(() => Promise.resolve());
+const mockWaitForEvent = jest.fn().mockImplementation(() => Promise.resolve(mockNewPage));
+const mockWaitForLoadState = jest.fn().mockImplementation(() => Promise.resolve());
+const mockBringToFront = jest.fn().mockImplementation(() => Promise.resolve());
+const mockUrl = jest.fn().mockReturnValue('https://example.com');
+
+// Mock new page
+const mockNewPage = {
+  waitForLoadState: mockWaitForLoadState,
+  bringToFront: mockBringToFront,
+  url: mockUrl,
+} as unknown as Page;
+
+
 
 // Mock locator functions
 const mockLocatorClick = jest.fn().mockImplementation(() => Promise.resolve());
@@ -52,7 +65,10 @@ const mockPage = {
   frameLocator: mockFrameLocator,
   evaluate: mockEvaluate,
   goto: mockGoto,
-  isClosed: mockIsClosed
+  isClosed: mockIsClosed,
+  context: jest.fn(() => ({
+    waitForEvent: mockWaitForEvent,
+  })),
 } as unknown as Page;
 
 // Mock the browser
@@ -80,6 +96,7 @@ describe('Browser Interaction Tools', () => {
   let hoverTool: HoverTool;
   let evaluateTool: EvaluateTool;
   let iframeClickTool: IframeClickTool;
+  let clickAndSwitchTabTool: ClickAndSwitchTabTool;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -89,6 +106,7 @@ describe('Browser Interaction Tools', () => {
     hoverTool = new HoverTool(mockServer);
     evaluateTool = new EvaluateTool(mockServer);
     iframeClickTool = new IframeClickTool(mockServer);
+    clickAndSwitchTabTool = new ClickAndSwitchTabTool(mockServer);
   });
 
   describe('ClickTool', () => {
@@ -132,6 +150,67 @@ describe('Browser Interaction Tools', () => {
       expect(result.content[0].text).toContain('Browser page not initialized');
     });
   });
+
+  describe('ClickAndSwitchTabTool', () => {
+    test('should click a link and switch to the new tab', async () => {
+      const args = { 
+        selector: 'a#test-link',
+      };
+  
+      const result = await clickAndSwitchTabTool.execute(args, mockContext);
+  
+      expect(mockPageClick).toHaveBeenCalledWith('a#test-link');
+      expect(mockWaitForEvent).toHaveBeenCalledWith('page');
+      expect(mockWaitForLoadState).toHaveBeenCalledWith('domcontentloaded');
+      expect(result.isError).toBe(false);
+      expect(result.content[0].text).toContain('Clicked link and switched to new tab');
+      expect(result.content[0].text).toContain('https://example.com');
+    });
+  
+    test('should handle errors during click', async () => {
+      const args = {
+        selector: 'a#test-link',
+      };
+  
+      // Mock a click error
+      mockPageClick.mockImplementationOnce(() => Promise.reject(new Error('Click failed')));
+  
+      const result = await clickAndSwitchTabTool.execute(args, mockContext);
+  
+      expect(mockPageClick).toHaveBeenCalledWith('a#test-link');
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('Operation failed');
+    });
+  
+    test('should handle errors during new tab opening', async () => {
+      const args = {
+        selector: 'a#test-link',
+      };
+  
+      // Mock an error during waitForEvent
+      mockWaitForEvent.mockImplementationOnce(() => Promise.reject(new Error('New tab failed to open')));
+  
+      const result = await clickAndSwitchTabTool.execute(args, mockContext);
+  
+      expect(mockPageClick).toHaveBeenCalledWith('a#test-link');
+      expect(mockWaitForEvent).toHaveBeenCalledWith('page');
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('Operation failed');
+    });
+  
+    test('should handle missing page in context', async () => {
+      const args = {
+        selector: 'a#test-link',
+      };
+  
+      const result = await clickAndSwitchTabTool.execute(args, { server: mockServer } as ToolContext);
+  
+      expect(mockPageClick).not.toHaveBeenCalled();
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('Browser page not initialized');
+    });
+  });
+
 
   describe('IframeClickTool', () => {
     test('should click an element in an iframe', async () => {

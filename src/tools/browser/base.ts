@@ -36,7 +36,7 @@ export abstract class BrowserToolBase implements ToolHandler {
    */
   protected validatePageAvailable(context: ToolContext): ToolResponse | null {
     if (!this.ensurePage(context)) {
-      return createErrorResponse("Browser page not initialized");
+      return createErrorResponse("Browser page not initialized!");
     }
     return null;
   }
