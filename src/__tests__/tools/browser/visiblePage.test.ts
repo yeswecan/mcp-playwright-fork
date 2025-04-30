@@ -135,6 +135,126 @@ describe('VisibleHtmlTool', () => {
     expect(result.content[0].text).toContain('<html><body>Sample HTML content</body></html>');
   });
 
+  test('should supply the correct filters', async () => {
+    const args = {
+      removeScripts: true,
+      removeComments: true,
+      removeStyles: true,
+      removeMeta: true,
+      minify: true,
+      cleanHtml: true
+    };
+
+    // Mock the page.evaluate to capture the filter arguments
+    mockEvaluate.mockImplementationOnce((callback, params) => {
+      expect(params).toEqual({
+        html: '<html><body>Sample HTML content</body></html>',
+        removeScripts: true,
+        removeComments: true,
+        removeStyles: true,
+        removeMeta: true,
+        minify: true
+      });
+      return Promise.resolve('<html><body>Processed HTML content</body></html>');
+    });
+
+    const result = await visibleHtmlTool.execute(args, mockContext);
+
+    expect(mockContent).toHaveBeenCalled();
+    expect(mockEvaluate).toHaveBeenCalled();
+    expect(result.isError).toBe(false);
+    expect(result.content[0].text).toContain('HTML content');
+    expect(result.content[0].text).toContain('Processed HTML content');
+  });
+
+  test('should handle individual filter combinations', async () => {
+    const args = {
+      removeScripts: true,
+      minify: true
+    };
+
+    // Mock content to return HTML
+    mockContent.mockImplementationOnce(() =>
+      Promise.resolve('<html><body>Sample HTML content</body></html>')
+    );
+
+    mockEvaluate.mockImplementationOnce((callback, params: any) => {
+      expect(params).toEqual({
+        html: '<html><body>Sample HTML content</body></html>',
+        removeScripts: true,
+        removeComments: undefined,
+        removeStyles: undefined,
+        removeMeta: undefined,
+        minify: true
+      });
+      return Promise.resolve('<html><body>Filtered content</body></html>');
+    });
+
+    const result = await visibleHtmlTool.execute(args, mockContext);
+    expect(result.isError).toBe(false);
+    expect(result.content[0].text).toContain('Filtered content');
+  });
+
+  // test('should handle selector parameter', async () => {
+  //   const args = {
+  //     selector: '#main-content',
+  //     removeScripts: true
+  //   };
+
+  //   // Mock content to return HTML
+  //   mockContent.mockImplementationOnce(() =>
+  //     Promise.resolve('<html><body><div id="main-content">Selected content</div></body></html>')
+  //   );
+
+  //   // Mock evaluate to handle both the selector case and the filtering
+  //   mockEvaluate
+  //     .mockResolvedValueOnce('<div id="main-content">Selected content</div>') // For the selector
+  //     .mockResolvedValueOnce('<div>Processed selected content</div>'); // For the filtering
+
+  //   const result = await visibleHtmlTool.execute(args, mockContext);
+  //   expect(result.isError).toBe(false);
+  //   expect(result.content[0].text).toContain('Processed selected content');
+  // });
+
+  test('should handle empty HTML content', async () => {
+    const args = {
+      removeScripts: true
+    };
+
+    // Mock content to return empty HTML
+    mockContent.mockImplementationOnce(() => Promise.resolve(''));
+
+    mockEvaluate.mockImplementationOnce((callback, params: any) => {
+      expect(params.html).toBe('');
+      return Promise.resolve('');
+    });
+
+    const result = await visibleHtmlTool.execute(args, mockContext);
+    expect(result.isError).toBe(false);
+    expect(result.content[0].text).toContain('HTML content');
+  });
+
+  test('should handle cleanHtml flag setting all filters', async () => {
+    const args = {
+      cleanHtml: true
+    };
+
+    mockEvaluate.mockImplementationOnce((callback, params) => {
+      expect(params).toEqual({
+        html: '<html><body>Sample HTML content</body></html>',
+        removeScripts: true,
+        removeComments: true,
+        removeStyles: true,
+        removeMeta: true,
+        minify: undefined
+      });
+      return Promise.resolve('<html><body>Processed HTML content</body></html>');
+    });
+
+    const result = await visibleHtmlTool.execute(args, mockContext);
+    expect(result.isError).toBe(false);
+  });
+
   test('should handle missing page', async () => {
     const args = {};
 
