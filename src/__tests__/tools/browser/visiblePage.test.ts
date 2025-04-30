@@ -1,17 +1,19 @@
 import { VisibleTextTool, VisibleHtmlTool } from '../../../tools/browser/visiblePage.js';
 import { ToolContext } from '../../../tools/common/types.js';
-import { Page, Browser } from 'playwright';
+import { Page, Browser, ElementHandle } from 'playwright';
 import { jest } from '@jest/globals';
 
 // Mock the Page object
-const mockEvaluate = jest.fn();
+const mockEvaluate = jest.fn() as jest.MockedFunction<(pageFunction: Function | string, arg?: any) => Promise<any>>;
 const mockContent = jest.fn();
 const mockIsClosed = jest.fn().mockReturnValue(false);
+const mock$ = jest.fn() as jest.MockedFunction<(selector: string) => Promise<ElementHandle | null>>;
 
 const mockPage = {
   evaluate: mockEvaluate,
   content: mockContent,
-  isClosed: mockIsClosed
+  isClosed: mockIsClosed,
+  $: mock$
 } as unknown as Page;
 
 // Mock the browser
@@ -195,26 +197,28 @@ describe('VisibleHtmlTool', () => {
     expect(result.content[0].text).toContain('Filtered content');
   });
 
-  // test('should handle selector parameter', async () => {
-  //   const args = {
-  //     selector: '#main-content',
-  //     removeScripts: true
-  //   };
+  test('should handle selector parameter', async () => {
+    const args = {
+      selector: '#main-content',
+      removeScripts: true
+    };
 
-  //   // Mock content to return HTML
-  //   mockContent.mockImplementationOnce(() =>
-  //     Promise.resolve('<html><body><div id="main-content">Selected content</div></body></html>')
-  //   );
+    // Mock element selection
+    const mockElement = {
+      outerHTML: '<div id="main-content">Selected content</div>'
+    } as unknown as ElementHandle<Element>;
+    mock$.mockResolvedValueOnce(mockElement);
 
-  //   // Mock evaluate to handle both the selector case and the filtering
-  //   mockEvaluate
-  //     .mockResolvedValueOnce('<div id="main-content">Selected content</div>') // For the selector
-  //     .mockResolvedValueOnce('<div>Processed selected content</div>'); // For the filtering
+    // Mock evaluate for filtering
+    mockEvaluate.mockImplementation((_: any, params: any) => 
+      Promise.resolve('<div>Processed selected content</div>')
+    );
 
-  //   const result = await visibleHtmlTool.execute(args, mockContext);
-  //   expect(result.isError).toBe(false);
-  //   expect(result.content[0].text).toContain('Processed selected content');
-  // });
+    const result = await visibleHtmlTool.execute(args, mockContext);
+    expect(mock$).toHaveBeenCalledWith('#main-content');
+    expect(result.isError).toBe(false);
+    expect(result.content[0].text).toContain('Processed selected content');
+  });
 
   test('should handle empty HTML content', async () => {
     const args = {
