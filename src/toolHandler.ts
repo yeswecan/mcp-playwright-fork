@@ -25,7 +25,8 @@ import {
   FillTool,
   SelectTool,
   HoverTool,
-  EvaluateTool
+  EvaluateTool,
+  IframeFillTool
 } from './tools/browser/interaction.js';
 import { 
   VisibleTextTool, 
@@ -73,6 +74,7 @@ let closeBrowserTool: CloseBrowserTool;
 let consoleLogsTool: ConsoleLogsTool;
 let clickTool: ClickTool;
 let iframeClickTool: IframeClickTool;
+let iframeFillTool: IframeFillTool;
 let fillTool: FillTool;
 let selectTool: SelectTool;
 let hoverTool: HoverTool;
@@ -310,6 +312,7 @@ function initializeTools(server: any) {
   if (!consoleLogsTool) consoleLogsTool = new ConsoleLogsTool(server);
   if (!clickTool) clickTool = new ClickTool(server);
   if (!iframeClickTool) iframeClickTool = new IframeClickTool(server);
+  if (!iframeFillTool) iframeFillTool = new IframeFillTool(server);
   if (!fillTool) fillTool = new FillTool(server);
   if (!selectTool) selectTool = new SelectTool(server);
   if (!hoverTool) hoverTool = new HoverTool(server);
@@ -474,6 +477,9 @@ export async function handleToolCall(
         
       case "playwright_iframe_click":
         return await iframeClickTool.execute(args, context);
+
+      case "playwright_iframe_fill":
+        return await iframeFillTool.execute(args, context);
         
       case "playwright_fill":
         return await fillTool.execute(args, context);
