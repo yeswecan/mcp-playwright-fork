@@ -13,8 +13,12 @@ export class SseServer extends EventEmitter {
           'Connection': 'keep-alive',
           'Access-Control-Allow-Origin': '*',
         });
-        res.write('\n');
-        this.clients.add(res);
+        try {
+          res.write('\n');
+          this.clients.add(res);
+        } catch (err) {
+          console.error('Failed to add SSE client or write initial response:', err);
+        }
         req.on('close', () => {
           this.clients.delete(res);
         });
@@ -25,7 +29,13 @@ export class SseServer extends EventEmitter {
   broadcast(event: string, data: any) {
     const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
     for (const client of this.clients) {
-      client.write(payload);
+      try {
+        client.write(payload);
+      } catch (err) {
+        // Remove client if write fails (e.g., client disconnected)
+        this.clients.delete(client);
+        console.error('Failed to write SSE event to client, removing client:', err);
+      }
     }
   }
 } 

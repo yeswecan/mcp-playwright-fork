@@ -9,8 +9,13 @@ import http from 'http';
 
 export const SSE_SERVER_SYMBOL = Symbol('sseServer');
 
+// Custom interface to allow symbol property
+interface McpServerWithSSE extends Server {
+  [key: symbol]: any;
+}
+
 async function runServer() {
-  const server = new Server(
+  const server: McpServerWithSSE = new Server(
     {
       name: "executeautomation/playwright-mcp-server",
       version: "1.0.4",
@@ -21,7 +26,7 @@ async function runServer() {
         tools: {},
       },
     }
-  );
+  ) as McpServerWithSSE;
 
   // Create tool definitions
   const TOOLS = createToolDefinitions();
@@ -29,16 +34,24 @@ async function runServer() {
   // Setup request handlers
   setupRequestHandlers(server, TOOLS);
 
-  // Start HTTP server for SSE
-  const httpServer = http.createServer();
-  const sseServer = new SseServer();
-  sseServer.attachToServer(httpServer);
-  httpServer.listen(3001, () => {
-    console.log('SSE server listening on http://localhost:3001/events');
-  });
-
-  // Attach sseServer to MCP server for use in handlers
-  (server as any)[SSE_SERVER_SYMBOL] = sseServer;
+  // Start HTTP server for SSE only if not in test environment
+  let sseServer;
+  if (process.env.NODE_ENV !== 'test') {
+    let httpServer;
+    try {
+      httpServer = http.createServer();
+      sseServer = new SseServer();
+      sseServer.attachToServer(httpServer);
+      httpServer.listen(3001, () => {
+        console.log('SSE server listening on http://localhost:3001/events');
+      });
+    } catch (err) {
+      console.error('Failed to initialize SSE server:', err);
+    }
+    if (sseServer) {
+      server[SSE_SERVER_SYMBOL] = sseServer;
+    }
+  }
 
   // Create transport and connect
   const transport = new StdioServerTransport();
