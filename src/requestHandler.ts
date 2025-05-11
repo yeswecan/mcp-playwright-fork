@@ -33,9 +33,13 @@ export function setupRequestHandlers(server: Server, tools: Tool[]) {
     if (uri === "console://logs") {
       const logs = getConsoleLogs().join("\n");
       // Broadcast logs to SSE clients
-      const sseServer = (server as any)[SSE_SERVER_SYMBOL];
-      if (sseServer) {
-        sseServer.broadcast('console_logs', { logs });
+      try {
+        const sseServer = (server as any)[SSE_SERVER_SYMBOL];
+        if (sseServer) {
+          sseServer.broadcast('console_logs', { logs });
+        }
+      } catch (err) {
+        console.error('Failed to broadcast console logs via SSE:', err);
       }
       return {
         contents: [{
@@ -51,9 +55,13 @@ export function setupRequestHandlers(server: Server, tools: Tool[]) {
       const screenshot = getScreenshots().get(name);
       if (screenshot) {
         // Broadcast screenshot event to SSE clients
-        const sseServer = (server as any)[SSE_SERVER_SYMBOL];
-        if (sseServer) {
-          sseServer.broadcast('screenshot', { name, screenshot });
+        try {
+          const sseServer = (server as any)[SSE_SERVER_SYMBOL];
+          if (sseServer) {
+            sseServer.broadcast('screenshot', { name, screenshot });
+          }
+        } catch (err) {
+          console.error('Failed to broadcast screenshot via SSE:', err);
         }
         return {
           contents: [{
