@@ -7,6 +7,7 @@ import {
   Tool
 } from "@modelcontextprotocol/sdk/types.js";
 import { handleToolCall, getConsoleLogs, getScreenshots } from "./toolHandler.js";
+import { SSE_SERVER_SYMBOL } from './index.js';
 
 export function setupRequestHandlers(server: Server, tools: Tool[]) {
   // List resources handler
@@ -30,11 +31,17 @@ export function setupRequestHandlers(server: Server, tools: Tool[]) {
     const uri = request.params.uri.toString();
 
     if (uri === "console://logs") {
+      const logs = getConsoleLogs().join("\n");
+      // Broadcast logs to SSE clients
+      const sseServer = (server as any)[SSE_SERVER_SYMBOL];
+      if (sseServer) {
+        sseServer.broadcast('console_logs', { logs });
+      }
       return {
         contents: [{
           uri,
           mimeType: "text/plain",
-          text: getConsoleLogs().join("\n"),
+          text: logs,
         }],
       };
     }
@@ -43,6 +50,11 @@ export function setupRequestHandlers(server: Server, tools: Tool[]) {
       const name = uri.split("://")[1];
       const screenshot = getScreenshots().get(name);
       if (screenshot) {
+        // Broadcast screenshot event to SSE clients
+        const sseServer = (server as any)[SSE_SERVER_SYMBOL];
+        if (sseServer) {
+          sseServer.broadcast('screenshot', { name, screenshot });
+        }
         return {
           contents: [{
             uri,
