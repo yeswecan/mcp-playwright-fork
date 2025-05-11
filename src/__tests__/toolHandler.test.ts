@@ -15,12 +15,14 @@ jest.mock('playwright', () => {
   const mockOn = jest.fn();
   const mockIsClosed = jest.fn().mockReturnValue(false);
   
-  // Mock iframe click
+  // Mock iframe click and fill
   const mockIframeClick = jest.fn().mockImplementation(() => Promise.resolve());
+  const mockIframeFill = jest.fn().mockImplementation(() => Promise.resolve());
   const mockIframeLocator = jest.fn().mockReturnValue({
-    click: mockIframeClick
+    click: mockIframeClick,
+    fill: mockIframeFill
   });
-  
+
   // Mock locator
   const mockLocatorClick = jest.fn().mockImplementation(() => Promise.resolve());
   const mockLocatorFill = jest.fn().mockImplementation(() => Promise.resolve());

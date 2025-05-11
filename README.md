@@ -57,6 +57,7 @@ const urlForWebsites = `vscode:mcp/install?${encodeURIComponent(config)}`;
 const urlForGithub = `https://insiders.vscode.dev/redirect?url=${encodeURIComponent(urlForWebsites)}`;
 -->
 
+[<img src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Server&color=0098FF" alt="Install in VS Code">](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522playwright%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522-y%2522%252C%2522%2540executeautomation%252Fplaywright-mcp-server%2522%255D%257D) 
 [<img alt="Install in VS Code Insiders" src="https://img.shields.io/badge/VS_Code_Insiders-VS_Code_Insiders?style=flat-square&label=Install%20Server&color=24bfa5">](https://insiders.vscode.dev/redirect?url=vscode-insiders%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522playwright%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522-y%2522%252C%2522%2540executeautomation%252Fplaywright-mcp-server%2522%255D%257D)
 
 Alternatively, you can install the Playwright MCP server using the VS Code CLI:
@@ -86,6 +87,36 @@ Here's the Claude Desktop configuration to use the Playwright server:
   }
 }
 ```
+
+## SSE (Server-Sent Events) Support
+
+Playwright MCP Server now supports real-time event streaming via Server-Sent Events (SSE).
+
+### How to Use
+
+- The server exposes an SSE endpoint at `http://localhost:3001/events`.
+- You can connect to this endpoint using any SSE-compatible client (such as EventSource in the browser or curl).
+- Events are sent in real-time as they occur (e.g., new console logs, screenshots, etc.).
+
+### Example (JavaScript)
+```js
+const evtSource = new EventSource('http://localhost:3001/events');
+evtSource.addEventListener('console_log_entry', (event) => {
+  const data = JSON.parse(event.data);
+  console.log('Console log:', data.log);
+});
+evtSource.addEventListener('screenshot', (event) => {
+  const data = JSON.parse(event.data);
+  console.log('Screenshot event:', data);
+});
+```
+
+### Available Events
+- `console_log_entry`: Fired when a new console log is captured.
+- `console_logs`: Fired when all logs are requested.
+- `screenshot`: Fired when a screenshot is taken or requested.
+
+This allows you to build real-time dashboards, monitoring tools, or simply observe browser activity as it happens.
 
 ## Testing
 
