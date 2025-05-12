@@ -1,6 +1,5 @@
 import { BrowserToolBase } from './base.js';
 import { ToolContext, ToolResponse, createSuccessResponse } from '../common/types.js';
-import { SSE_SERVER_SYMBOL } from '../../index.js';
 
 /**
  * Tool for retrieving and filtering console logs from the browser
@@ -16,11 +15,6 @@ export class ConsoleLogsTool extends BrowserToolBase {
   registerConsoleMessage(type: string, text: string): void {
     const logEntry = `[${type}] ${text}`;
     this.consoleLogs.push(logEntry);
-    // Broadcast new log entry to SSE clients
-    const sseServer = (this.server as any)[SSE_SERVER_SYMBOL];
-    if (sseServer) {
-      sseServer.broadcast('console_log_entry', { log: logEntry });
-    }
   }
 
   /**
