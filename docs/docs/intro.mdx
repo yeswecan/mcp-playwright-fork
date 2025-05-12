@@ -70,31 +70,3 @@ Modify your `claude-desktop-config.json` file as shown below
 This video should give you an high level overview of what Claude's MCP is and how helpful it will soon become for AI agents
 
 <YouTubeVideoEmbed videoId="hGJQMbpsTi4" />
-
-## 🟢 Real-Time Event Streaming (SSE)
-
-Playwright MCP Server now supports real-time event streaming via Server-Sent Events (SSE).
-
-- The server exposes an SSE endpoint at `http://localhost:3001/events`.
-- You can connect to this endpoint using any SSE-compatible client (such as EventSource in the browser or curl).
-- Events are sent in real-time as they occur (e.g., new console logs, screenshots, etc.).
-
-**Example (JavaScript):**
-```js
-const evtSource = new EventSource('http://localhost:3001/events');
-evtSource.addEventListener('console_log_entry', (event) => {
-  const data = JSON.parse(event.data);
-  console.log('Console log:', data.log);
-});
-evtSource.addEventListener('screenshot', (event) => {
-  const data = JSON.parse(event.data);
-  console.log('Screenshot event:', data);
-});
-```
-
-**Available Events:**
-- `console_log_entry`: Fired when a new console log is captured.
-- `console_logs`: Fired when all logs are requested.
-- `screenshot`: Fired when a screenshot is taken or requested.
-
-This allows you to build real-time dashboards, monitoring tools, or simply observe browser activity as it happens.

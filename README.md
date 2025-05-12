@@ -43,7 +43,7 @@ Using Smithery
 To install Playwright MCP for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@executeautomation/playwright-mcp-server):
 
 ```bash
-npx -y @smithery/cli install @executeautomation/playwright-mcp-server --client claude
+npx @smithery/cli install @executeautomation/playwright-mcp-server --client claude
 ```
 #### Installation in VS Code
 
@@ -88,36 +88,6 @@ Here's the Claude Desktop configuration to use the Playwright server:
 }
 ```
 
-## SSE (Server-Sent Events) Support
-
-Playwright MCP Server now supports real-time event streaming via Server-Sent Events (SSE).
-
-### How to Use
-
-- The server exposes an SSE endpoint at `http://localhost:3001/events`.
-- You can connect to this endpoint using any SSE-compatible client (such as EventSource in the browser or curl).
-- Events are sent in real-time as they occur (e.g., new console logs, screenshots, etc.).
-
-### Example (JavaScript)
-```js
-const evtSource = new EventSource('http://localhost:3001/events');
-evtSource.addEventListener('console_log_entry', (event) => {
-  const data = JSON.parse(event.data);
-  console.log('Console log:', data.log);
-});
-evtSource.addEventListener('screenshot', (event) => {
-  const data = JSON.parse(event.data);
-  console.log('Screenshot event:', data);
-});
-```
-
-### Available Events
-- `console_log_entry`: Fired when a new console log is captured.
-- `console_logs`: Fired when all logs are requested.
-- `screenshot`: Fired when a screenshot is taken or requested.
-
-This allows you to build real-time dashboards, monitoring tools, or simply observe browser activity as it happens.
-
 ## Testing
 
 This project uses Jest for testing. The tests are located in the `src/__tests__` directory.
@@ -137,7 +107,6 @@ npm run test:custom    # Run tests with custom script (same as node run-tests.cj
 ```
 
 The test coverage report will be generated in the `coverage` directory.
-
 
 ### Running evals
 
