@@ -1,5 +1,5 @@
 <div align="center" markdown="1">
-[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/executeautomation-mcp-playwright-badge.png)](https://mseep.ai/app/executeautomation-mcp-playwright)
+[MseeP.ai Security Assessment Badge](https://mseep.net/pr/executeautomation-mcp-playwright-badge.png)](https://mseep.ai/app/executeautomation-mcp-playwright)
 </div>
 <div align="center" markdown="1">
    <sup>Special thanks to:</sup>
