@@ -1,17 +1,22 @@
 <div align="center" markdown="1">
-[MseeP.ai Security Assessment Badge](https://mseep.net/pr/executeautomation-mcp-playwright-badge.png)](https://mseep.ai/app/executeautomation-mcp-playwright)
-</div>
-<div align="center" markdown="1">
-   <sup>Special thanks to:</sup>
-   <br>
-   <br>
-   <a href="https://www.warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=mcp-playwright">
-      <img alt="Warp sponsorship" width="400" src="https://github.com/user-attachments/assets/ab8dd143-b0fd-4904-bdc5-dd7ecac94eae">
-   </a>
-
-### [Warp, the AI terminal for developers](https://www.warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=mcp-playwright)
-[Available for MacOS, Linux, & Windows](https://www.warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=mcp-playwright)<br>
-
+  <table>
+    <tr>
+      <td align="center" valign="middle">
+        <a href="https://mseep.ai/app/executeautomation-mcp-playwright">
+          <img src="https://mseep.net/pr/executeautomation-mcp-playwright-badge.png" alt="MseeP.ai Security Assessment Badge" height="80"/>
+        </a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://www.warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=mcp-playwright">
+          <img alt="Warp sponsorship" width="200" src="https://github.com/user-attachments/assets/ab8dd143-b0fd-4904-bdc5-dd7ecac94eae"/>
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><sub>MseeP.ai Security Assessment</sub></td>
+      <td align="center"><sub>Special thanks to <a href="https://www.warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=mcp-playwright">Warp, the AI terminal for developers</a></sub></td>
+    </tr>
+  </table>
 </div>
 <hr>
 
