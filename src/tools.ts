@@ -134,6 +134,19 @@ export function createToolDefinitions() {
       },
     },
     {
+      name: "playwright_iframe_fill",
+      description: "Fill an element in an iframe on the page",
+      inputSchema: {
+        type: "object",
+        properties: {
+          iframeSelector: { type: "string", description: "CSS selector for the iframe containing the element to fill" },
+          selector: { type: "string", description: "CSS selector for the element to fill" },
+          value: { type: "string", description: "Value to fill" },
+        },
+        required: ["iframeSelector", "selector", "value"],
+      },
+    },
+    {
       name: "playwright_fill",
       description: "fill out an input field",
       inputSchema: {
@@ -426,6 +439,7 @@ export const BROWSER_TOOLS = [
   "playwright_screenshot",
   "playwright_click",
   "playwright_iframe_click",
+  "playwright_iframe_fill",
   "playwright_fill",
   "playwright_select",
   "playwright_hover",

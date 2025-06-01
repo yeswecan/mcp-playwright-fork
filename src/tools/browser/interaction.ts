@@ -66,6 +66,26 @@ export class IframeClickTool extends BrowserToolBase {
 }
 
 /**
+ * Tool for filling elements inside iframes
+ */
+export class IframeFillTool extends BrowserToolBase {
+  /**
+   * Execute the iframe fill tool
+   */
+  async execute(args: any, context: ToolContext): Promise<ToolResponse> {
+    return this.safeExecute(context, async (page) => {
+      const frame = page.frameLocator(args.iframeSelector);
+      if (!frame) {
+        return createErrorResponse(`Iframe not found: ${args.iframeSelector}`);
+      }
+      
+      await frame.locator(args.selector).fill(args.value);
+      return createSuccessResponse(`Filled element ${args.selector} inside iframe ${args.iframeSelector} with: ${args.value}`);
+    });
+  }
+}
+
+/**
  * Tool for filling form fields
  */
 export class FillTool extends BrowserToolBase {

@@ -5,6 +5,27 @@ import YouTubeVideoEmbed from '@site/src/components/HomepageFeatures/YouTubeVide
 
 # Release Notes
 
+## Version 1.0.5
+- **Removed SSE (Server-Sent Events) Support**: All SSE-related code, endpoints, and documentation have been fully removed. The server now only supports STDIO transport for communication with clients.
+- **Codebase Cleanup**: Removed all references to SseServer, /events endpoint, and related event streaming features from the code and documentation.
+- **Version bump**: Incremented version to 1.0.5.
+
+## Version 1.0.4
+- **New Tool: `playwright_iframe_fill`**
+  - Fill input fields inside iframes using CSS selectors
+
+- **New Tool: `playwright_click_and_switch_tab`**
+  - Click a link and automatically switch to the newly opened browser tab
+
+- **Improved Error Logging**
+  - Captures uncaught exceptions and unhandled Promise rejections in browser logs for better debugging
+
+- **Documentation Updates**
+  - Added/updated documentation for new tools and improved installation/configuration instructions
+
+- **Test Coverage**
+  - Added and updated tests for new tools and features
+
 ## Version 1.0.3
 - **Code Generation Capabilities**: Added new code generation capability 🎭
   - `start_codegen_session`: Start a new session to record Playwright actions
