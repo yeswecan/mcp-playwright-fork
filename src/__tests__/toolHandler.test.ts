@@ -11,6 +11,7 @@ jest.mock('playwright', () => {
   const mockFill = jest.fn().mockImplementation(() => Promise.resolve());
   const mockSelectOption = jest.fn().mockImplementation(() => Promise.resolve());
   const mockHover = jest.fn().mockImplementation(() => Promise.resolve());
+  const mockUploadFile = jest.fn().mockImplementation(() => Promise.resolve());
   const mockEvaluate = jest.fn().mockImplementation(() => Promise.resolve());
   const mockOn = jest.fn();
   const mockIsClosed = jest.fn().mockReturnValue(false);
@@ -28,12 +29,14 @@ jest.mock('playwright', () => {
   const mockLocatorFill = jest.fn().mockImplementation(() => Promise.resolve());
   const mockLocatorSelectOption = jest.fn().mockImplementation(() => Promise.resolve());
   const mockLocatorHover = jest.fn().mockImplementation(() => Promise.resolve());
+  const mockLocatorUploadFile = jest.fn().mockImplementation(() => Promise.resolve());
   
   const mockLocator = jest.fn().mockReturnValue({
     click: mockLocatorClick,
     fill: mockLocatorFill,
     selectOption: mockLocatorSelectOption,
-    hover: mockLocatorHover
+    hover: mockLocatorHover,
+    uploadFile: mockLocatorUploadFile
   });
   
   const mockFrames = jest.fn().mockReturnValue([{
@@ -47,6 +50,7 @@ jest.mock('playwright', () => {
     fill: mockFill,
     selectOption: mockSelectOption,
     hover: mockHover,
+    uploadFile: mockUploadFile,
     evaluate: mockEvaluate,
     on: mockOn,
     frames: mockFrames,

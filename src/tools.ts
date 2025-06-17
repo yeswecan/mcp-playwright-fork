@@ -182,6 +182,18 @@ export function createToolDefinitions() {
       },
     },
     {
+      name: "playwright_upload_file",
+      description: "Upload a file to an input[type='file'] element on the page",
+      inputSchema: {
+        type: "object",
+        properties: {
+          selector: { type: "string", description: "CSS selector for the file input element" },
+          filePath: { type: "string", description: "Absolute path to the file to upload" }
+        },
+        required: ["selector", "filePath"],
+      },
+    },
+    {
       name: "playwright_evaluate",
       description: "Execute JavaScript in the browser console",
       inputSchema: {
@@ -435,6 +447,7 @@ export const BROWSER_TOOLS = [
   "playwright_fill",
   "playwright_select",
   "playwright_hover",
+  "playwright_upload_file",
   "playwright_evaluate",
   "playwright_close",
   "playwright_expect_response",
