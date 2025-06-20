@@ -91,7 +91,9 @@ export class VisibleHtmlTool extends BrowserToolBase {
     }
     return this.safeExecute(context, async (page) => {
       try {
-        const { selector, removeScripts, removeComments, removeStyles, removeMeta, minify, cleanHtml } = args;
+        const { selector, removeComments, removeStyles, removeMeta, minify, cleanHtml } = args;
+        // Default removeScripts to true unless explicitly set to false
+        const removeScripts = args.removeScripts === false ? false : true;
 
         // Get the HTML content
         let htmlContent: string;

@@ -10,6 +10,7 @@ import YouTubeVideoEmbed from '@site/src/components/HomepageFeatures/YouTubeVide
 - **Enhanced Content Extraction**:
   - Significantly improved `playwright_get_visible_text` tool for more accurate text extraction.
   - Added `playwright_get_visible_html` tool to retrieve the full HTML content of the page.
+  - **By default, all `<script>` tags are now removed from the HTML output for `playwright_get_visible_html` (unless `removeScripts: false` is set). Output is also truncated to a safe length (default 20,000 characters) to prevent issues with LLM clients.**
 - **Improved Interactions**:
   - Updated `playwright_hover` functionality in the interaction tool.
 - **Browser Support**:
