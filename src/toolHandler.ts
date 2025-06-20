@@ -155,7 +155,7 @@ async function registerConsoleMessage(page) {
 /**
  * Ensures a browser is launched and returns the page
  */
-async function ensureBrowser(browserSettings?: BrowserSettings) {
+export async function ensureBrowser(browserSettings?: BrowserSettings) {
   try {
     // Check if browser exists but is disconnected
     if (browser && !browser.isConnected()) {
@@ -199,10 +199,14 @@ async function ensureBrowser(browserSettings?: BrowserSettings) {
           browserInstance = chromium;
           break;
       }
-       // Read the Chrome executable path from the environment variable
-      const executablePath = process.env.PLAYWRIGHT_CHROME_EXECUTABLE_PATH || undefined; // Fallback to default if not set
       
-      browser = await browserInstance.launch({ headless, executablePath });
+      const executablePath = process.env.CHROME_EXECUTABLE_PATH;
+
+      browser = await browserInstance.launch({
+        headless,
+        executablePath: executablePath
+      });
+      
       currentBrowserType = browserType;
 
       // Add cleanup logic when browser is disconnected

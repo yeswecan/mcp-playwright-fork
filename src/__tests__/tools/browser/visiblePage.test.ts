@@ -127,7 +127,7 @@ describe('VisibleHtmlTool', () => {
   });
 
   test('should retrieve HTML content', async () => {
-    const args = {};
+    const args = { removeScripts: false };
 
     const result = await visibleHtmlTool.execute(args, mockContext);
 

@@ -124,6 +124,12 @@ The evals package loads an mcp client that then runs the index.ts file, so there
 OPENAI_API_KEY=your-key  npx mcp-eval src/evals/evals.ts src/tools/codegen/index.ts
 ```
 
+## Contributing
+
+When adding new tools, please be mindful of the tool name length. Some clients, like Cursor, have a 60-character limit for the combined server and tool name (`server_name:tool_name`).
+
+Our server name is `playwright-mcp`. Please ensure your tool names are short enough to not exceed this limit.
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=executeautomation/mcp-playwright&type=Date)](https://star-history.com/#executeautomation/mcp-playwright&Date)

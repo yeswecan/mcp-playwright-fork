@@ -50,7 +50,15 @@ export class VisibleTextTool extends BrowserToolBase {
           }
           return text.trim();
         });
-        return createSuccessResponse(`Visible text content:\n${visibleText}`);
+        // Truncate logic
+        const maxLength = typeof args.maxLength === 'number' ? args.maxLength : 20000;
+        let output = visibleText;
+        let truncated = false;
+        if (output.length > maxLength) {
+          output = output.slice(0, maxLength) + '\n[Output truncated due to size limits]';
+          truncated = true;
+        }
+        return createSuccessResponse(`Visible text content:\n${output}`);
       } catch (error) {
         return createErrorResponse(`Failed to get visible text content: ${(error as Error).message}`);
       }
@@ -83,7 +91,9 @@ export class VisibleHtmlTool extends BrowserToolBase {
     }
     return this.safeExecute(context, async (page) => {
       try {
-        const { selector, removeScripts, removeComments, removeStyles, removeMeta, minify, cleanHtml } = args;
+        const { selector, removeComments, removeStyles, removeMeta, minify, cleanHtml } = args;
+        // Default removeScripts to true unless explicitly set to false
+        const removeScripts = args.removeScripts === false ? false : true;
 
         // Get the HTML content
         let htmlContent: string;
@@ -170,7 +180,13 @@ export class VisibleHtmlTool extends BrowserToolBase {
           );
         }
 
-        return createSuccessResponse(`HTML content:\n${htmlContent}`);
+        // Truncate logic
+        const maxLength = typeof args.maxLength === 'number' ? args.maxLength : 20000;
+        let output = htmlContent;
+        if (output.length > maxLength) {
+          output = output.slice(0, maxLength) + '\n<!-- Output truncated due to size limits -->';
+        }
+        return createSuccessResponse(`HTML content:\n${output}`);
       } catch (error) {
         return createErrorResponse(`Failed to get visible HTML content: ${(error as Error).message}`);
       }
