@@ -155,7 +155,7 @@ async function registerConsoleMessage(page) {
 /**
  * Ensures a browser is launched and returns the page
  */
-async function ensureBrowser(browserSettings?: BrowserSettings) {
+export async function ensureBrowser(browserSettings?: BrowserSettings) {
   try {
     // Check if browser exists but is disconnected
     if (browser && !browser.isConnected()) {

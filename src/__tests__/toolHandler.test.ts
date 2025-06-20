@@ -391,4 +391,11 @@ describe('Tool Handler', () => {
     // Clean up
     delete process.env.CHROME_EXECUTABLE_PATH;
   });
+
+  test('should not launch browser for API tools', async () => {
+    const ensureBrowser = jest.spyOn(require('../toolHandler'), 'ensureBrowser');
+    await handleToolCall('playwright_get', { url: 'https://api.restful-api.dev/objects' }, mockServer);
+    expect(ensureBrowser).not.toHaveBeenCalled();
+    ensureBrowser.mockRestore();
+  });
 });
