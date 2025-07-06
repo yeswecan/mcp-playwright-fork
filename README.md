@@ -35,63 +35,17 @@ A Model Context Protocol server that provides browser automation capabilities us
 
 ## Installation
 
-You can install the package using either npm, mcp-get, or Smithery:
+This fork includes additional **smooth mouse control commands** not available in the original version. Install this enhanced version:
 
-Using npm:
-```bash
-npm install -g @executeautomation/playwright-mcp-server
-```
+### 🎯 **Recommended Installation (This Fork with Mouse Commands)**
 
-Using mcp-get:
-```bash
-npx @michaellatman/mcp-get@latest install @executeautomation/playwright-mcp-server
-```
-Using Smithery
-
-To install Playwright MCP for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@executeautomation/playwright-mcp-server):
-
-```bash
-npx @smithery/cli install @executeautomation/playwright-mcp-server --client claude
-```
-#### Installation in VS Code
-
-Install the Playwright MCP server in VS Code using one of these buttons:
-
-<!--
-// Generate using?:
-const config = JSON.stringify({ name: 'playwright', command: 'npx', args: ["-y", "@executeautomation/playwright-mcp-server"] });
-const urlForWebsites = `vscode:mcp/install?${encodeURIComponent(config)}`;
-// Github markdown does not allow linking to `vscode:` directly, so you can use our redirect:
-const urlForGithub = `https://insiders.vscode.dev/redirect?url=${encodeURIComponent(urlForWebsites)}`;
--->
-
-[<img src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Server&color=0098FF" alt="Install in VS Code">](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522playwright%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522-y%2522%252C%2522%2540executeautomation%252Fplaywright-mcp-server%2522%255D%257D) 
-[<img alt="Install in VS Code Insiders" src="https://img.shields.io/badge/VS_Code_Insiders-VS_Code_Insiders?style=flat-square&label=Install%20Server&color=24bfa5">](https://insiders.vscode.dev/redirect?url=vscode-insiders%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522playwright%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522-y%2522%252C%2522%2540executeautomation%252Fplaywright-mcp-server%2522%255D%257D)
-
-Alternatively, you can install the Playwright MCP server using the VS Code CLI:
-
-```bash
-# For VS Code
-code --add-mcp '{"name":"playwright","command":"npx","args":["@executeautomation/playwright-mcp-server"]}'
-```
-
-```bash
-# For VS Code Insiders
-code-insiders --add-mcp '{"name":"playwright","command":"npx","args":["@executeautomation/playwright-mcp-server"]}'
-```
-
-After installation, the ExecuteAutomation Playwright MCP server will be available for use with your GitHub Copilot agent in VS Code.
-
-## Configuration to use Playwright Server
-
-### 🎯 **Using This Fork (with Mouse Commands)**
-
-For Claude Code:
+#### For Claude Code:
 ```bash
 claude mcp add --scope user playwright -- npx github:yeswecan/mcp-playwright-fork
 ```
 
-For Claude Desktop configuration:
+#### For Claude Desktop:
+Add this to your MCP configuration:
 ```json
 {
   "mcpServers": {
@@ -103,19 +57,39 @@ For Claude Desktop configuration:
 }
 ```
 
-### 📦 **Using Original Version**
+#### Alternative Installation Methods:
+```bash
+# Direct npx usage
+npx github:yeswecan/mcp-playwright-fork
 
-Here's the Claude Desktop configuration to use the original Playwright server:
+# Install globally from GitHub
+npm install -g github:yeswecan/mcp-playwright-fork
+```
 
-```json
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@executeautomation/playwright-mcp-server"]
-    }
-  }
-}
+### 📦 **Original Version Installation**
+
+If you prefer the original version without mouse commands:
+
+```bash
+# Original via npm
+npm install -g @executeautomation/playwright-mcp-server
+
+# Original via npx  
+npx @executeautomation/playwright-mcp-server
+```
+
+## Quick Start
+
+After installation, you can immediately use all Playwright commands plus the new mouse control features:
+
+```javascript
+// New smooth mouse commands
+await playwright_mouse_move({ x: 200, y: 200, steps: 10 });
+await playwright_smooth_drag({ 
+  fromX: 100, fromY: 100, 
+  toX: 300, toY: 300, 
+  steps: 15, delay: 200 
+});
 ```
 
 ## Testing
