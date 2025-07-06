@@ -83,7 +83,29 @@ code-insiders --add-mcp '{"name":"playwright","command":"npx","args":["@executea
 After installation, the ExecuteAutomation Playwright MCP server will be available for use with your GitHub Copilot agent in VS Code.
 
 ## Configuration to use Playwright Server
-Here's the Claude Desktop configuration to use the Playwright server:
+
+### 🎯 **Using This Fork (with Mouse Commands)**
+
+For Claude Code:
+```bash
+claude mcp add --scope user playwright -- npx github:yeswecan/mcp-playwright-fork
+```
+
+For Claude Desktop configuration:
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["github:yeswecan/mcp-playwright-fork"]
+    }
+  }
+}
+```
+
+### 📦 **Using Original Version**
+
+Here's the Claude Desktop configuration to use the original Playwright server:
 
 ```json
 {
