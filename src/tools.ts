@@ -443,6 +443,35 @@ export function createToolDefinitions() {
         required: ["selector"],
       },
     },
+    {
+      name: "playwright_mouse_move",
+      description: "Move mouse to specific coordinates without clicking",
+      inputSchema: {
+        type: "object",
+        properties: {
+          x: { type: "number", description: "X coordinate to move mouse to" },
+          y: { type: "number", description: "Y coordinate to move mouse to" },
+          steps: { type: "number", description: "Number of intermediate steps for smooth movement (default: 1)" }
+        },
+        required: ["x", "y"],
+      },
+    },
+    {
+      name: "playwright_smooth_drag",
+      description: "Perform smooth drag operation from start to end coordinates",
+      inputSchema: {
+        type: "object",
+        properties: {
+          fromX: { type: "number", description: "Start X coordinate" },
+          fromY: { type: "number", description: "Start Y coordinate" },
+          toX: { type: "number", description: "End X coordinate" },
+          toY: { type: "number", description: "End Y coordinate" },
+          steps: { type: "number", description: "Number of intermediate steps for smooth movement (default: 10)" },
+          delay: { type: "number", description: "Delay between steps in milliseconds (default: 100)" }
+        },
+        required: ["fromX", "fromY", "toX", "toY"],
+      },
+    },
   ] as const satisfies Tool[];
 }
 
@@ -469,7 +498,9 @@ export const BROWSER_TOOLS = [
   "playwright_drag",
   "playwright_press_key",
   "playwright_save_as_pdf",
-  "playwright_click_and_switch_tab"
+  "playwright_click_and_switch_tab",
+  "playwright_mouse_move",
+  "playwright_smooth_drag"
 ];
 
 // API Request tools for conditional launch

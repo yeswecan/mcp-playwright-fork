@@ -1,11 +1,11 @@
 {
-  "name": "@executeautomation/playwright-mcp-server",
-  "version": "1.0.6",
-  "description": "Model Context Protocol servers for Playwright",
+  "name": "@yeswecan/playwright-mcp-server",
+  "version": "1.0.6-mouse.1",
+  "description": "Model Context Protocol servers for Playwright with additional mouse control commands",
   "license": "MIT",
-  "author": "ExecuteAutomation, Ltd (https://executeautomation.com)",
-  "homepage": "https://executeautomation.github.io/mcp-playwright/",
-  "bugs": "https://github.com/executeautomation/mcp-playwright/issues",
+  "author": "ExecuteAutomation, Ltd (https://executeautomation.com), Fork by yeswecan",
+  "homepage": "https://github.com/yeswecan/Playwright-MCP-Fork",
+  "bugs": "https://github.com/yeswecan/Playwright-MCP-Fork/issues",
   "types": "dist/index.d.ts",
   "type": "module",
   "bin": {
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/executeautomation/mcp-playwright.git"
+    "url": "https://github.com/yeswecan/Playwright-MCP-Fork.git"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.11.1",

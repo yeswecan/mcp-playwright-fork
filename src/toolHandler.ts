@@ -44,6 +44,7 @@ import { GoBackTool, GoForwardTool } from './tools/browser/navigation.js';
 import { DragTool, PressKeyTool } from './tools/browser/interaction.js';
 import { SaveAsPdfTool } from './tools/browser/output.js';
 import { ClickAndSwitchTabTool } from './tools/browser/interaction.js';
+import { MouseMoveTool, SmoothDragTool } from './tools/browser/mouse.js';
 
 // Global state
 let browser: Browser | undefined;
@@ -100,6 +101,8 @@ let dragTool: DragTool;
 let pressKeyTool: PressKeyTool;
 let saveAsPdfTool: SaveAsPdfTool;
 let clickAndSwitchTabTool: ClickAndSwitchTabTool;
+let mouseMoveTool: MouseMoveTool;
+let smoothDragTool: SmoothDragTool;
 
 
 interface BrowserSettings {
@@ -346,6 +349,8 @@ function initializeTools(server: any) {
   if (!pressKeyTool) pressKeyTool = new PressKeyTool(server);
   if (!saveAsPdfTool) saveAsPdfTool = new SaveAsPdfTool(server);
   if (!clickAndSwitchTabTool) clickAndSwitchTabTool = new ClickAndSwitchTabTool(server);
+  if (!mouseMoveTool) mouseMoveTool = new MouseMoveTool(server);
+  if (!smoothDragTool) smoothDragTool = new SmoothDragTool(server);
 }
 
 /**
@@ -549,6 +554,10 @@ export async function handleToolCall(
         return await saveAsPdfTool.execute(args, context);
       case "playwright_click_and_switch_tab":
         return await clickAndSwitchTabTool.execute(args, context);
+      case "playwright_mouse_move":
+        return await mouseMoveTool.execute(args, context);
+      case "playwright_smooth_drag":
+        return await smoothDragTool.execute(args, context);
       
       default:
         return {
