@@ -74,7 +74,7 @@ To use this fork with the additional mouse commands, you have two options:
 #### Option 1: Install from this repository
 ```bash
 # Clone this repository
-git clone https://github.com/YOUR_USERNAME/mcp-playwright-fork.git
+git clone git@github.com:yeswecan/mcp-playwright-fork.git
 cd mcp-playwright-fork
 
 # Install dependencies
@@ -87,10 +87,10 @@ claude mcp add --scope user playwright -- node /absolute/path/to/mcp-playwright-
 #### Option 2: Install directly from GitHub
 ```bash
 # Install directly from GitHub
-npm install -g https://github.com/YOUR_USERNAME/mcp-playwright-fork.git
+npm install -g https://github.com/yeswecan/mcp-playwright-fork.git
 
 # Use with Claude Code
-claude mcp add --scope user playwright -- npx YOUR_USERNAME/mcp-playwright-fork
+claude mcp add --scope user playwright -- npx yeswecan/mcp-playwright-fork
 ```
 
 ### 📦 **Installing the Original Version**
