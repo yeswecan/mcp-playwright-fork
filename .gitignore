@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+*.log
+
+# Build artifacts
+*.tsbuildinfo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+
+# Test files we created during development
+command-validation-test.js
+complete-visual-test.js
+continuous-demo.js
+demo-test.js
+detailed-tool-test.js
+direct-mcp-test.js
+final-test.js
+hybrid-test.js
+manual-test.js
+mcp-visual-drag-test.js
+minimal-browser-test.js
+quick-browser-test.js
+quick-startup-test.js
+quick-test.js
+run-visual-test.js
+show-test.js
+simple-test.js
+step-by-step-mcp-test.js
+test-mcp-client.js
+test-modifications.js
+test-mouse-tools.js
+test-server.js
+test-tool-definitions.js
+visual-drag-test.js
+
+# Test documentation files
+TEST-README.md
+VISUAL-TEST-README.md
